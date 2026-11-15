@@ -58,3 +58,6 @@ amplia, no una medición de tu parcela"), que se muestra siempre.
   `qu.json`; falta su traducción por una persona hablante de quechua.
 - Página «Conócenos»: claves `sobre.*` copiadas en español a `qu.json`;
   deben ser traducidas por una persona hablante de quechua.
+- Enlace al repositorio GitHub: las claves `sobre.github` y
+  `sobre.githubAria` se copiaron en español a `qu.json`; falta su traducción
+  por una persona hablante de quechua.
