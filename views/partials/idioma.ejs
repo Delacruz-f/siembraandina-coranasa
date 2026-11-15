@@ -1,0 +1,12 @@
+<% if (typeof idiomas !== "undefined" && idiomas.length > 1) { %>
+<nav class="selector-idioma" aria-label="<%= t("nav.idioma") %>">
+  <% idiomas.forEach((opcion) => { %>
+    <a
+      href="<%= typeof urlIdioma === 'string' ? urlIdioma : '' %><%= typeof urlIdioma === 'string' && urlIdioma.includes('?') ? '&' : '?' %>idioma=<%= opcion.codigo %>"
+      hreflang="<%= opcion.codigo %>"
+      lang="<%= opcion.codigo %>"
+      <%= opcion.activo ? 'aria-current="true"' : "" %>
+    ><%= opcion.nombre %></a>
+  <% }) %>
+</nav>
+<% } %>

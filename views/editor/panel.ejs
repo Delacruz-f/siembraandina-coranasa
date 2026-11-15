@@ -1,0 +1,82 @@
+<%- include('../partials/head', { titulo: 'Panel editorial' }) %>
+
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Contenido para la comunidad</p>
+    <h1>Panel editorial</h1>
+    <p>Redacta, revisa y programa artículos para la comunidad.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/editor/articulos/nuevo">Nuevo artículo</a>
+  </div>
+</section>
+
+<section class="tarjeta tarjeta--hundida">
+  <form method="get" action="/editor" class="formulario en-fila">
+    <label
+      >Buscar artículos
+      <input name="q" value="<%= busqueda %>" maxlength="120" />
+    </label>
+    <button class="boton boton-secundario" type="submit">Buscar</button>
+    <a class="boton boton-secundario" href="/editor/biblioteca">Biblioteca de imágenes</a>
+  </form>
+</section>
+
+<% if (articulos.length) { %>
+<div class="tabla-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Artículo</th>
+        <th>Categoría</th>
+        <th>Estado</th>
+        <th>Publicación</th>
+        <th>Actualizado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% articulos.forEach((articulo) => { %>
+      <tr>
+        <td><strong><%= articulo.titulo %></strong><br /><span class="tenue">/<%= articulo.slug %></span></td>
+        <td><%= articulo.categoria %></td>
+        <td><span class="etiqueta-estado"><%= articulo.estado %></span></td>
+        <td><%= fechaHora(articulo.publicada_en) %></td>
+        <td><%= fechaHora(articulo.updated_at) %></td>
+        <td>
+          <a class="boton boton-secundario boton-pequeno" href="/editor/articulos/<%= articulo.id %>/editar">Editar</a>
+          <form
+            method="post"
+            action="/editor/articulos/<%= articulo.id %>/eliminar"
+            class="en-linea"
+            data-confirmar="¿Archivar este artículo?"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button class="boton boton-peligro boton-pequeno" type="submit">Archivar</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } else { %>
+<section class="tarjeta estado-vacio">
+  <h2>Sin artículos</h2>
+  <p>Crea un borrador para comenzar.</p>
+</section>
+<% } %> <% if (paginas > 1) { %>
+<nav class="paginacion" aria-label="Páginas de artículos">
+  <% if (pagina > 1) { %><a
+    class="boton boton-secundario"
+    href="?q=<%= encodeURIComponent(busqueda) %>&pagina=<%= pagina - 1 %>"
+    >Anterior</a
+  ><% } %>
+  <span>Página <%= pagina %> de <%= paginas %></span>
+  <% if (pagina < paginas) { %><a
+    class="boton boton-secundario"
+    href="?q=<%= encodeURIComponent(busqueda) %>&pagina=<%= pagina + 1 %>"
+    >Siguiente</a
+  ><% } %>
+</nav>
+<% } %> <%- include('../partials/foot') %>

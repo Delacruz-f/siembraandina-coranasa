@@ -1,0 +1,13 @@
+<div class="shell--auth">
+  <header class="cabecera-auth">
+    <a class="marca" href="/" aria-label="<%= t('app.nombre') %>, <%= t('nav.inicio') %>">
+      <span class="marca__icono"><%- include("../iconos/brote") %></span>
+      <span class="marca__texto"><%= t("app.nombre") %></span>
+    </a>
+    <%- include("../partials/idioma") %>
+    <button class="boton-icono boton-tema" type="button" data-accion="tema" aria-label="<%= t('panel.cambiarTema') %>" aria-pressed="false">
+      <span class="icono-luna"><%- include("../iconos/luna") %></span>
+      <span class="icono-sol"><%- include("../iconos/sol") %></span>
+    </button>
+  </header>
+</div>

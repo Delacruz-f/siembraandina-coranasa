@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="<%= typeof idioma !== 'undefined' ? idioma : 'es' %>">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+    <meta name="theme-color" content="#F1F5F9" />
+    <meta name="description" content="<%= typeof descripcion !== 'undefined' ? descripcion : t('app.descripcion') %>" />
+    <meta name="robots" content="<%= tipoLayout === 'publico' ? 'index,follow' : 'noindex,nofollow' %>" />
+    <link rel="canonical" href="<%= typeof ogUrl !== 'undefined' ? ogUrl : '' %>" />
+    <meta property="og:locale" content="<%= idioma === 'en' ? 'en_US' : idioma === 'qu' ? 'qu_PE' : 'es_PE' %>" />
+    <meta property="og:type" content="<%= typeof ogTipo !== 'undefined' ? ogTipo : 'website' %>" />
+    <meta
+      property="og:title"
+      content="<%= typeof ogTitulo !== 'undefined' ? ogTitulo : (typeof titulo !== 'undefined' ? titulo : t('app.nombre')) %>"
+    />
+    <meta
+      property="og:description"
+      content="<%= typeof ogDescripcion !== 'undefined' ? ogDescripcion : (typeof descripcion !== 'undefined' ? descripcion : t('app.descripcion')) %>"
+    />
+    <meta property="og:url" content="<%= typeof ogUrl !== 'undefined' ? ogUrl : '' %>" />
+    <meta property="og:image" content="<%= typeof ogImagen !== 'undefined' ? ogImagen : '' %>" />
+    <meta property="og:image:alt" content="<%= t('app.imagenAlt') %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title><%= typeof titulo !== "undefined" ? `${titulo} · ` : "" %><%= t("app.nombre") %></title>
+    <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/img/pwa/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Siembra" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="preload" href="/fonts/manrope-variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/css/tokens.css?v=5" />
+    <link rel="stylesheet" href="/css/base.css?v=4" />
+    <link rel="stylesheet" href="/css/panel-layout.css?v=7" />
+    <link rel="stylesheet" href="/css/components.css?v=5" />
+    <link rel="stylesheet" href="/css/dashboard.css?v=7" />
+    <link rel="stylesheet" href="/css/publico.css?v=21" />
+    <link rel="stylesheet" href="/css/panel-agricultor.css?v=6" />
+    <link rel="stylesheet" href="/css/imagenes.css?v=4" />
+    <link rel="stylesheet" href="/css/utilities.css?v=4" />
+    <script src="/js/interacciones.js" defer></script>
+    <script src="/js/publico.js" defer></script>
+    <script src="/js/galeria.js" defer></script>
+    <script src="/js/pwa.js" defer></script>
+    <% if (usuario) { %>
+    <script src="/js/notificaciones.js" defer></script>
+    <% } %> <% if ((typeof usarMapa !== 'undefined' && usarMapa) || (typeof usarMapaParcela !== 'undefined' &&
+    usarMapaParcela) || (typeof usarConsultaPublica !== 'undefined' && usarConsultaPublica) || (typeof usarMonitor !==
+    'undefined' && usarMonitor) || (typeof usarSiembras !== 'undefined' && usarSiembras)) { %>
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+    <script src="/vendor/leaflet/leaflet.js" defer></script>
+    <% } %> <% if (typeof usarMapa !== 'undefined' && usarMapa) { %>
+    <script src="/js/comunidades.js" defer></script>
+    <% } %> <% if (typeof usarMapaParcela !== 'undefined' && usarMapaParcela) { %>
+    <script src="/js/parcela-formulario.js?v=4" defer></script>
+    <% } %> <% if (typeof usarConsultaPublica !== 'undefined' && usarConsultaPublica) { %>
+    <script src="/vendor/chartjs/chart.umd.js" defer></script>
+    <script src="/js/consulta-publica.js?v=1" defer></script>
+    <% } %> <% if (typeof usarMonitor !== 'undefined' && usarMonitor) { %>
+    <script src="/vendor/chartjs/chart.umd.js" defer></script>
+    <script src="/js/monitor-publico.js" defer></script>
+    <% } %> <% if (typeof usarSiembras !== 'undefined' && usarSiembras) { %>
+    <script src="/js/siembras-publicas.js" defer></script>
+    <% } %> <% if (typeof usarCalendarioMapa !== 'undefined' && usarCalendarioMapa) { %>
+    <script src="/js/calendario-punto.js?v=1" defer></script>
+    <% } %>
+  </head>
+  <body class="layout--<%= tipoLayout %>">
+    <a class="saltar" href="#contenido"><%= t("nav.saltar") %></a>
+    <% if (tipoLayout === "panel") { %> <%- include("panel") %> <% } else if (tipoLayout === "auth") { %> <%-
+    include("auth") %> <% } else { %> <%- include("publico") %> <% } %>
+    <main id="contenido" class="contenido contenido--<%= tipoLayout %>">
+      <% if (mensajes && mensajes.length) { %>
+      <div class="mensajes" role="status" aria-live="polite">
+        <% mensajes.forEach(function (m) { %>
+        <p class="aviso aviso-<%= m.tipo %>">
+          <span aria-hidden="true"><%- include("../iconos/info") %></span><%= m.texto %>
+        </p>
+        <% }) %>
+      </div>
+      <% } %>
+    </main>
+  </body>
+</html>

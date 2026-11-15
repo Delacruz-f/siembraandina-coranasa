@@ -1,0 +1,12 @@
+<%- include('../partials/head', { titulo: 'Verificar correo' }) %>
+
+<section class="tarjeta estrecha">
+  <h1>Confirma tu correo</h1>
+  <p>Confirma que esta dirección te pertenece para activar tu cuenta.</p>
+  <form method="post" action="/verificar-correo/<%= token %>" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="boton" type="submit">Verificar correo</button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,181 @@
+<%- include('../partials/head') %>
+
+<div class="pagina-publica consulta-publica">
+  <header class="consulta-publica__cabecera">
+    <p class="consulta-publica__etiqueta"><%= t("consultaPublica.etiqueta") %></p>
+    <h1><%= t("consultaPublica.titulo") %></h1>
+    <p><%= t("consultaPublica.introduccion") %></p>
+  </header>
+
+  <form
+    id="consulta-publica-formulario"
+    class="consulta-publica__formulario"
+    action="/api/publico/consulta"
+    method="post"
+    data-consulta-publica
+    data-error="<%= t('consultaPublica.error') %>"
+    data-error-limite="<%= t('consultaPublica.errorLimite') %>"
+    data-error-red="<%= t('consultaPublica.errorRed') %>"
+    data-error-coordenadas="<%= t('consultaPublica.errorSinCoordenadas') %>"
+    data-selecciona-lugar="<%= t('consultaPublica.seleccionaLugar') %>"
+    data-cargando="<%= t('consultaPublica.cargando') %>"
+    data-ubicacion-buscando="<%= t('consultaPublica.ubicacionBuscando') %>"
+    data-ubicacion-error="<%= t('consultaPublica.ubicacionError') %>"
+    data-ubicacion-lista="<%= t('consultaPublica.ubicacionGuardada') %>"
+    data-distrito-elegido="<%= t('consultaPublica.distritoElegido') %>"
+    data-ultima-consulta="<%= t('consultaPublica.ultimaConsulta') %>"
+    data-confianza-alta="<%= t('consultaPublica.nivelAlta') %>"
+    data-confianza-media="<%= t('consultaPublica.nivelMedia') %>"
+    data-confianza-baja="<%= t('consultaPublica.nivelBaja') %>"
+    data-ventanas="<%= t('consultaPublica.ventanas') %>"
+    data-puntaje="<%= t('consultaPublica.puntaje') %>"
+    data-cosecha="<%= t('consultaPublica.cosecha') %>"
+    data-referencial="<%= t('consultaPublica.referencial') %>"
+    data-riesgos="<%= t('consultaPublica.riesgos') %>"
+    data-riesgo-helada="<%= t('consultaPublica.riesgoHelada') %>"
+    data-riesgo-humedad="<%= t('consultaPublica.riesgoHumedad') %>"
+    data-sin-riesgos="<%= t('consultaPublica.sinRiesgos') %>"
+    data-sin-pronostico="<%= t('consultaPublica.sinPronostico') %>"
+    data-sin-ventanas="<%= t('consultaPublica.sinVentanas') %>"
+    data-fuentes="<%= t('consultaPublica.fuentes') %>"
+    data-nasa="<%= t('consultaPublica.nasa') %>"
+    data-open-meteo-suelo="<%= t('consultaPublica.openMeteoSuelo') %>"
+    data-open-meteo-temperatura="<%= t('consultaPublica.openMeteoTemperatura') %>"
+    data-disponible="<%= t('consultaPublica.disponible') %>"
+    data-no-disponible="<%= t('consultaPublica.noDisponible') %>"
+    data-grafico="<%= t('consultaPublica.graficoTitulo') %>"
+    data-humedad="<%= t('consultaPublica.humedad') %>"
+    data-rango-ideal="<%= t('consultaPublica.rangoIdeal') %>"
+    data-resumen-grafico="<%= t('consultaPublica.resumenGrafico') %>"
+    data-grafico-sin-datos="<%= t('consultaPublica.graficoSinDatos') %>"
+    data-ver-datos-grafico="<%= t('consultaPublica.verDatosGrafico') %>"
+    data-explicacion="<%= t('consultaPublica.explicacion') %>"
+    data-insignia-ia="<%= t('consultaPublica.insigniaIA') %>"
+    data-insignia-plantilla="<%= t('consultaPublica.insigniaPlantilla') %>"
+    data-limite-resolucion="<%= t('consultaPublica.limiteResolucion') %>"
+    data-tecnicos="<%= t('consultaPublica.tecnicosTitulo') %>"
+    data-sin-tecnicos="<%= t('consultaPublica.sinTecnicos') %>"
+    data-lectura-grafico="<%= t('consultaPublica.lecturaGrafico') %>"
+    data-mapa-atribucion="<%= t('consultaPublica.atribucionMapa') %>"
+    data-fecha-consulta="<%= t('consultaPublica.fechaConsulta') %>"
+    data-periodo-historial="<%= t('consultaPublica.periodoHistorial') %>"
+    data-provincia="<%= t('consultaPublica.provincia') %>"
+    data-distrito="<%= t('consultaPublica.distrito') %>"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="latitud" id="consulta-publica-latitud" />
+    <input type="hidden" name="longitud" id="consulta-publica-longitud" />
+    <input type="hidden" name="provincia_id" id="consulta-publica-provincia-id" />
+
+    <section class="consulta-publica__grupo" aria-labelledby="consulta-publica-lugar-titulo">
+      <h2 id="consulta-publica-lugar-titulo"><%= t("consultaPublica.ubicacionTitulo") %></h2>
+      <p><%= t("consultaPublica.avisoGeolocalizacion") %></p>
+      <button
+        class="consulta-publica__boton consulta-publica__boton--secundario"
+        type="button"
+        id="consulta-publica-geolocalizacion"
+      >
+        <%= t("consultaPublica.usarUbicacion") %>
+      </button>
+      <div class="consulta-publica__selectores">
+        <label for="consulta-publica-departamento"
+          ><%= t("consultaPublica.departamento") %>
+          <select id="consulta-publica-departamento">
+            <option value=""><%= t("consultaPublica.elegirDepartamento") %></option>
+            <% departamentos.forEach((opcion) => { %>
+            <option value="<%= opcion.id %>"><%= opcion.nombre %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label for="consulta-publica-provincia"
+          ><%= t("consultaPublica.provincia") %>
+          <select id="consulta-publica-provincia" disabled>
+            <option value=""><%= t("consultaPublica.elegirProvincia") %></option>
+          </select>
+        </label>
+        <label for="consulta-publica-distrito"
+          ><%= t("consultaPublica.distrito") %>
+          <select id="consulta-publica-distrito" name="distrito_id" disabled>
+            <option value=""><%= t("consultaPublica.elegirDistrito") %></option>
+          </select>
+        </label>
+      </div>
+      <p><%= t("consultaPublica.instruccionMapa") %></p>
+      <div
+        class="consulta-publica__mapa"
+        id="consulta-publica-mapa"
+        role="region"
+        aria-label="<%= t('consultaPublica.mapaAccesible') %>"
+      ></div>
+      <p class="consulta-publica__punto" id="consulta-publica-punto" aria-live="polite"></p>
+    </section>
+
+    <section class="consulta-publica__grupo" aria-labelledby="consulta-publica-cultivo-titulo">
+      <h2 id="consulta-publica-cultivo-titulo"><%= t("consultaPublica.cultivoTitulo") %></h2>
+      <label for="consulta-publica-cultivo"
+        ><%= t("consultaPublica.cultivoLabel") %>
+        <select id="consulta-publica-cultivo" name="cultivo" required>
+          <option value=""><%= t("consultaPublica.elegirCultivo") %></option>
+          <% const cultivosTraducidos = { papa: t("consultaPublica.cultivo.papa"), maiz:
+          t("consultaPublica.cultivo.maiz"), quinua: t("consultaPublica.cultivo.quinua"), }; %> <%
+          cultivos.forEach((cultivo) => { %>
+          <option value="<%= cultivo.slug %>"><%= cultivosTraducidos[cultivo.slug] || cultivo.nombre %></option>
+          <% }) %>
+          <option value="no-se"><%= t("consultaPublica.noSeCultivo") %></option>
+        </select>
+      </label>
+      <p><%= t("consultaPublica.privacidad") %></p>
+      <button class="consulta-publica__boton consulta-publica__boton--principal" type="submit">
+        <%= t("consultaPublica.verDatos") %>
+      </button>
+      <p class="consulta-publica__estado" id="consulta-publica-estado" role="status" aria-live="polite" hidden></p>
+    </section>
+  </form>
+
+  <section
+    class="consulta-publica__resultado"
+    id="consulta-publica-resultado"
+    aria-labelledby="consulta-publica-resultado-titulo"
+    hidden
+  >
+    <p class="consulta-publica__estado" id="consulta-publica-cache" role="status" hidden></p>
+    <h2 id="consulta-publica-resultado-titulo"></h2>
+    <div id="consulta-publica-tarjetas"></div>
+    <section class="consulta-publica__grafico" aria-labelledby="consulta-publica-grafico-titulo">
+      <h3 id="consulta-publica-grafico-titulo"></h3>
+      <p id="consulta-publica-grafico-resumen"></p>
+      <div class="consulta-publica__grafico-lienzo">
+        <canvas id="consulta-publica-grafico" role="img"></canvas>
+      </div>
+      <details>
+        <summary id="consulta-publica-grafico-detalle"></summary>
+        <ul id="consulta-publica-grafico-lecturas"></ul>
+      </details>
+    </section>
+    <section class="consulta-publica__explicacion" aria-labelledby="consulta-publica-explicacion-titulo">
+      <h3 id="consulta-publica-explicacion-titulo"></h3>
+      <p id="consulta-publica-insignia" class="consulta-publica__insignia"></p>
+      <p id="consulta-publica-explicacion"></p>
+      <p id="consulta-publica-resolucion"></p>
+    </section>
+    <section class="consulta-publica__fuentes" aria-labelledby="consulta-publica-fuentes-titulo">
+      <h3 id="consulta-publica-fuentes-titulo"></h3>
+      <ul id="consulta-publica-fuentes-lista"></ul>
+    </section>
+    <section class="consulta-publica__tecnicos" aria-labelledby="consulta-publica-tecnicos-titulo">
+      <h3 id="consulta-publica-tecnicos-titulo"></h3>
+      <p id="consulta-publica-sin-tecnicos"></p>
+      <ul id="consulta-publica-tecnicos-lista"></ul>
+      <a
+        class="consulta-publica__boton consulta-publica__boton--secundario"
+        id="consulta-publica-detalle"
+        href="<%= usuario ? (usuario.permisos && usuario.permisos.includes('consultas.crear') ? '/panel/consultas/nueva' : '/panel') : '/registro?motivo=consulta%20t%C3%A9cnica' %>"
+        hidden
+      >
+        <%= t("consultaPublica.quieroDetalle") %>
+      </a>
+    </section>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

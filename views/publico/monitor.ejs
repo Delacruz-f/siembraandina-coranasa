@@ -1,0 +1,226 @@
+<%- include('../partials/head') %>
+
+<div
+  class="pagina-publica monitor-publico"
+  id="monitor-publico"
+  data-error="<%= t('monitor.error') %>"
+  data-cargando="<%= t('monitor.cargando') %>"
+  data-sin-comunidades="<%= t('monitor.sinComunidades') %>"
+  data-sin-datos="<%= t('monitor.sinDatos') %>"
+  data-error-historial="<%= t('monitor.errorHistorial') %>"
+  data-meses="<%= t('monitor.mesesHistorial') %>"
+  data-un-mes="<%= t('monitor.unMes') %>"
+  data-fuente-tecnico="<%= t('monitor.fuenteTecnico') %>"
+  data-fuente-nasa="<%= t('monitor.fuenteNasa') %>"
+  data-fuente-pronostico="<%= t('monitor.fuentePronostico') %>"
+  data-clase-muy-seca="<%= t('monitor.claseMuySeca') %>"
+  data-clase-seca="<%= t('monitor.claseSeca') %>"
+  data-clase-adecuada="<%= t('monitor.claseAdecuada') %>"
+  data-clase-humeda="<%= t('monitor.claseHumeda') %>"
+  data-clase-saturada="<%= t('monitor.claseSaturada') %>"
+  data-clase-sin-datos="<%= t('monitor.claseSinDatos') %>"
+  data-valor-humedad="<%= t('monitor.valorHumedad') %>"
+  data-valor-temperatura="<%= t('monitor.valorTemperatura') %>"
+  data-valor-fecha="<%= t('monitor.valorFecha') %>"
+  data-valor-dias="<%= t('monitor.valorDias') %>"
+  data-valor-fuente="<%= t('monitor.valorFuente') %>"
+  data-serie-humedad="<%= t('monitor.serieHumedad') %>"
+  data-serie-temperatura="<%= t('monitor.serieTemperatura') %>"
+  data-atribucion-mapa="<%= t('monitor.atribucionMapa') %>"
+>
+  <header class="monitor-publico__cabecera">
+    <p class="monitor-publico__etiqueta"><%= t("monitor.etiqueta") %></p>
+    <h1><%= t("monitor.titulo") %></h1>
+    <p><%= t("monitor.introduccion") %></p>
+  </header>
+
+  <section class="monitor-publico__resumen" aria-label="<%= t('monitor.resumenTitulo') %>">
+    <article class="monitor-publico__metrica">
+      <h2><%= t("monitor.promedioHumedad") %></h2>
+      <p id="monitor-promedio-humedad" aria-live="polite">—</p>
+    </article>
+    <article class="monitor-publico__metrica">
+      <h2><%= t("monitor.promedioTemperatura") %></h2>
+      <p id="monitor-promedio-temperatura" aria-live="polite">—</p>
+    </article>
+    <article class="monitor-publico__metrica">
+      <h2><%= t("monitor.comunidadesConDatos") %></h2>
+      <p id="monitor-comunidades-con-datos" aria-live="polite">—</p>
+    </article>
+  </section>
+
+  <div class="monitor-publico__espacio">
+    <section class="monitor-publico__mapa-panel" aria-labelledby="monitor-mapa-titulo">
+      <div class="monitor-publico__panel-cabecera">
+        <div>
+          <h2 id="monitor-mapa-titulo"><%= t("monitor.mapaTitulo") %></h2>
+          <p><%= t("monitor.mapaDescripcion") %></p>
+        </div>
+      </div>
+      <div class="monitor-publico__mapa" id="monitor-mapa" role="region" aria-label="<%= t('monitor.mapaAccesible') %>">
+        <p class="monitor-publico__estado" role="status"><%= t("monitor.cargando") %></p>
+      </div>
+      <a class="monitor-publico__desarrolladores" href="https://www.openstreetmap.org/copyright" rel="noreferrer"
+        ><%= t("monitor.enlaceAtribucionMapa") %></a
+      >
+      <ul class="monitor-publico__leyenda" aria-label="<%= t('monitor.leyenda') %>">
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--muy-seca" aria-hidden="true"></span><%=
+          t("monitor.claseMuySeca") %>
+        </li>
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--seca" aria-hidden="true"></span><%=
+          t("monitor.claseSeca") %>
+        </li>
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--adecuada" aria-hidden="true"></span><%=
+          t("monitor.claseAdecuada") %>
+        </li>
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--humeda" aria-hidden="true"></span><%=
+          t("monitor.claseHumeda") %>
+        </li>
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--saturada" aria-hidden="true"></span><%=
+          t("monitor.claseSaturada") %>
+        </li>
+        <li>
+          <span class="monitor-publico__punto monitor-publico__punto--sin-datos" aria-hidden="true"></span><%=
+          t("monitor.claseSinDatos") %>
+        </li>
+      </ul>
+      <p id="monitor-estado" class="monitor-publico__estado" role="status" aria-live="polite"></p>
+    </section>
+
+    <aside class="monitor-publico__detalle" aria-labelledby="monitor-detalle-titulo">
+      <div class="monitor-publico__panel-cabecera">
+        <div>
+          <h2 id="monitor-detalle-titulo"><%= t("monitor.detalleTitulo") %></h2>
+          <p id="monitor-lugar"><%= t("monitor.detalleInstruccion") %></p>
+        </div>
+      </div>
+      <dl class="monitor-publico__valores">
+        <div>
+          <dt><%= t("monitor.humedad") %></dt>
+          <dd id="monitor-humedad">—</dd>
+        </div>
+        <div>
+          <dt><%= t("monitor.temperatura") %></dt>
+          <dd id="monitor-temperatura">—</dd>
+        </div>
+        <div>
+          <dt><%= t("monitor.diasUltimaLectura") %></dt>
+          <dd id="monitor-dias">—</dd>
+        </div>
+        <div>
+          <dt><%= t("monitor.fuente") %></dt>
+          <dd id="monitor-fuente">—</dd>
+        </div>
+      </dl>
+      <label class="monitor-publico__control" for="monitor-meses">
+        <span><%= t("monitor.selectorMeses") %></span>
+        <output id="monitor-meses-valor" for="monitor-meses"><%= t("monitor.unMes") %></output>
+        <input id="monitor-meses" type="range" min="1" max="12" value="1" step="1" />
+      </label>
+      <p id="monitor-grafico-estado" class="monitor-publico__estado" role="status" aria-live="polite"></p>
+      <div class="monitor-publico__grafico">
+        <canvas id="monitor-grafico" aria-label="<%= t('monitor.graficoAccesible') %>"></canvas>
+      </div>
+      <details class="monitor-publico__valores-grafico">
+        <summary><%= t("monitor.verValores") %></summary>
+        <ul id="monitor-lista-valores"></ul>
+      </details>
+    </aside>
+  </div>
+
+  <section class="monitor-publico__fuentes" aria-labelledby="monitor-fuentes-titulo">
+    <header>
+      <p class="monitor-publico__etiqueta"><%= t("monitor.fuentesEtiqueta") %></p>
+      <h2 id="monitor-fuentes-titulo"><%= t("monitor.fuentesTitulo") %></h2>
+      <p><%= t("monitor.fuentesIntroduccion") %></p>
+    </header>
+    <div class="monitor-publico__fuentes-grid">
+      <article class="monitor-publico__fuente-card">
+        <span class="monitor-publico__fuente-icono" aria-hidden="true"><%- include("../iconos/gota") %></span>
+        <h3><%= t("monitor.datoHumedad") %></h3>
+        <p><%= t("monitor.fraseHumedad") %></p>
+        <dl>
+          <div>
+            <dt><%= t("monitor.origen") %></dt>
+            <dd><%= t("monitor.nasaPower") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.actualizacion") %></dt>
+            <dd><%= t("monitor.frecuenciaNASA") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.limite") %></dt>
+            <dd><%= t("monitor.limiteZona") %></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="monitor-publico__fuente-card">
+        <span class="monitor-publico__fuente-icono" aria-hidden="true"><%- include("../iconos/termometro") %></span>
+        <h3><%= t("monitor.datoTemperatura") %></h3>
+        <p><%= t("monitor.fraseTemperatura") %></p>
+        <dl>
+          <div>
+            <dt><%= t("monitor.origen") %></dt>
+            <dd><%= t("monitor.nasaPower") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.actualizacion") %></dt>
+            <dd><%= t("monitor.frecuenciaNASA") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.limite") %></dt>
+            <dd><%= t("monitor.limiteZona") %></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="monitor-publico__fuente-card">
+        <span class="monitor-publico__fuente-icono" aria-hidden="true"
+          ><%- include("../iconos/flecha-arriba-derecha") %></span
+        >
+        <h3><%= t("monitor.datoPronostico") %></h3>
+        <p><%= t("monitor.frasePronostico") %></p>
+        <dl>
+          <div>
+            <dt><%= t("monitor.origen") %></dt>
+            <dd><%= t("monitor.openMeteo") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.actualizacion") %></dt>
+            <dd><%= t("monitor.frecuenciaPronostico") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.limite") %></dt>
+            <dd><%= t("monitor.limiteZona") %></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="monitor-publico__fuente-card">
+        <span class="monitor-publico__fuente-icono" aria-hidden="true"><%- include("../iconos/libro") %></span>
+        <h3><%= t("monitor.datoCalendario") %></h3>
+        <p><%= t("monitor.fraseCalendario") %></p>
+        <dl>
+          <div>
+            <dt><%= t("monitor.origen") %></dt>
+            <dd><%= t("monitor.calendarioTradicional") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.actualizacion") %></dt>
+            <dd><%= t("monitor.frecuenciaCalendario") %></dd>
+          </div>
+          <div>
+            <dt><%= t("monitor.limite") %></dt>
+            <dd><%= t("monitor.limiteZona") %></dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+    <a class="monitor-publico__desarrolladores" href="/api/docs"><%= t("monitor.desarrolladores") %></a>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

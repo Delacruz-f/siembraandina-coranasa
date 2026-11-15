@@ -1,0 +1,34 @@
+<%- include('../partials/head') %>
+
+<h1>Moderación de comentarios</h1>
+<% if (reportes.length) { %>
+  <div class="rejilla">
+    <% reportes.forEach((reporte) => { %>
+      <article class="tarjeta">
+        <p class="etiqueta"><a href="/saberes/<%= encodeURIComponent(reporte.articulo_slug) %>#comentarios"><%= reporte.articulo %></a></p>
+        <blockquote><%= reporte.contenido %></blockquote>
+        <p><strong>Motivo:</strong> <%= reporte.motivo %><% if (reporte.detalle) { %> — <%= reporte.detalle %><% } %></p>
+        <p class="tenue">Reportó <%= reporte.reportante || "usuario" %> · Autor: <%= reporte.autor || "cuenta eliminada" %></p>
+        <div class="acciones">
+          <form method="post" action="/editor/moderacion/reportes/<%= reporte.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="accion" value="ocultar">
+            <button class="boton boton-peligro" type="submit">Ocultar comentario</button>
+          </form>
+          <form method="post" action="/editor/moderacion/reportes/<%= reporte.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="accion" value="descartar">
+            <button class="boton boton-secundario" type="submit">Descartar reporte</button>
+          </form>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+<% } else { %>
+  <section class="tarjeta estado-vacio">
+    <h2>La cola está al día</h2>
+    <p>No hay comentarios pendientes de revisión.</p>
+  </section>
+<% } %>
+
+<%- include('../partials/foot') %>

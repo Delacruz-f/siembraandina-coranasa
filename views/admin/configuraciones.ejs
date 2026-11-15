@@ -1,0 +1,21 @@
+<%- include('../partials/head', { titulo }) %>
+<h1>Configuración general</h1>
+<p class="tenue">Estas opciones no contienen secretos ni credenciales. SMTP y base de datos se administran mediante variables de entorno.</p>
+<% const definiciones = {
+  'sitio.nombre': ['Nombre del sitio', 'Siembra Andina'],
+  'sitio.descripcion': ['Descripción pública', 'Calendario de siembra andino'],
+  'contacto.email': ['Correo de contacto', 'contacto@ejemplo.pe'],
+  'soporte.telefono': ['Teléfono de soporte', ''],
+}; %>
+<div class="rejilla">
+  <% Object.keys(definiciones).forEach((clave) => { const configuracion = configuraciones.find((fila) => fila.clave === clave); %>
+    <form method="post" action="/admin/configuraciones/<%= clave %>" class="formulario tarjeta" data-confirmar="¿Guardar esta configuración general?">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label><%= definiciones[clave][0] %>
+        <input name="valor" maxlength="1000" value="<%= configuracion ? configuracion.valor : definiciones[clave][1] %>" required>
+      </label>
+      <button class="boton boton-secundario" type="submit">Guardar</button>
+    </form>
+  <% }) %>
+</div>
+<%- include('../partials/foot') %>

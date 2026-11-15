@@ -1,0 +1,50 @@
+<%- include('../partials/head', { titulo }) %>
+
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Cercanía con la comunidad</p>
+    <h1>Avisos por zona</h1>
+    <p>Cada aviso se envía al centro de notificaciones de agricultores que tienen parcelas en el distrito seleccionado.</p>
+  </div>
+</section>
+
+<form method="post" action="/tecnico/avisos" class="formulario tarjeta" data-confirmar="¿Publicar el aviso y notificar a los agricultores de esta zona?">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label for="distrito_id">Distrito
+    <select id="distrito_id" name="distrito_id" required>
+      <option value="">Selecciona un distrito</option>
+      <% distritos.forEach((distrito) => { %>
+        <option value="<%= distrito.id %>"><%= distrito.departamento %> · <%= distrito.provincia %> · <%= distrito.nombre %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label for="tipo">Tipo de aviso
+    <select id="tipo" name="tipo" required>
+      <% tipos.forEach((tipo) => { %><option value="<%= tipo.clave %>"><%= tipo.nombre %></option><% }) %>
+    </select>
+  </label>
+  <label for="titulo">Título
+    <input id="titulo" name="titulo" minlength="5" maxlength="160" required>
+  </label>
+  <label for="mensaje">Recomendación o información
+    <textarea id="mensaje" name="mensaje" minlength="10" maxlength="2000" rows="5" required></textarea>
+  </label>
+  <label for="vigente_hasta">Vigente hasta (opcional)
+    <input id="vigente_hasta" name="vigente_hasta" type="datetime-local">
+  </label>
+  <button class="boton" type="submit">Publicar y notificar</button>
+</form>
+
+<section class="tarjeta">
+  <h2>Avisos recientes</h2>
+  <% if (avisos.length) { %>
+    <div class="tabla-scroll"><table>
+      <thead><tr><th>Aviso</th><th>Tipo</th><th>Zona</th><th>Publicado</th><th>Vigencia</th></tr></thead>
+      <tbody><% avisos.forEach((aviso) => { %>
+        <tr><td><strong><%= aviso.titulo %></strong><br><%= aviso.mensaje %></td><td><%= aviso.tipo %></td><td><%= aviso.departamento %> · <%= aviso.provincia %> · <%= aviso.distrito %></td><td><%= fechaHora(aviso.vigente_desde) %></td><td><%= aviso.vigente_hasta ? fechaHora(aviso.vigente_hasta) : 'Sin vencimiento' %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+  <% } else { %><p class="tenue">Todavía no se publicaron avisos.</p><% } %>
+</section>
+
+<%- include('../partials/foot') %>

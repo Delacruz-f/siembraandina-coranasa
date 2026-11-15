@@ -1,0 +1,138 @@
+.metrica-degradado__icono {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  grid-area: icono;
+  border-radius: 0.8rem;
+  background: var(--superficie);
+  color: var(--marca);
+  font-size: 1.1rem;
+}
+
+.metrica-degradado__icono svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.metrica-degradado__valor {
+  grid-area: valor;
+  color: var(--texto-sobre-degradado);
+  font-size: clamp(1.4rem, 2.2vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrica-degradado__etiqueta {
+  grid-area: etiqueta;
+  color: var(--texto-sobre-degradado);
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.semaphorio {
+  display: flex;
+  gap: .25rem;
+}
+
+.semaphorio .semaphorio__izquierda {
+  width: .8rem;
+  height: .8rem;
+  border-radius: 50%;
+}
+
+.semaphorio--exito .semaphorio__izquierda {
+  background: var(--exito);
+}
+
+.semaphorio--alerta .semaphorio__izquierda {
+  background: var(--maiz);
+}
+
+.semaphorio--peligro .semaphorio__izquierda {
+  background: var(--peligro);
+}
+
+/* Tarjetas de parcela */
+.tarjeta.parcela {
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-lg);
+  padding: 1.25rem;
+  position: relative;
+}
+
+.tarjeta.parcela h2 {
+  margin-bottom: .5rem;
+}
+
+.tarjeta.parcela .recomendacion {
+  margin-top: .75rem;
+  padding: .75rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-sm);
+}
+
+.tarjeta.parcela .recomendacion--ok {
+  border-color: var(--exito);
+  color: var(--exito);
+}
+
+.tarjeta.parcela .recomendacion--mid {
+  border-color: var(--maiz);
+  color: var(--texto);
+}
+
+.tarjeta.parcela .recomendacion--bad {
+  border-color: var(--peligro);
+  color: var(--peligro);
+}
+
+/* Borde izquierdo semáforo */
+.parcela--exito {
+  border-left: 4px solid var(--exito);
+}
+
+.parcela--maiz {
+  border-left: 4px solid var(--maiz);
+}
+
+.parcela--peligro {
+  border-left: 4px solid var(--peligro);
+}
+
+.mapa-parcela {
+  width: 100%;
+  height: clamp(18rem, 55vh, 32rem);
+  min-height: 18rem;
+  margin-block: var(--espacio-4);
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-lg);
+  background: var(--superficie-suave);
+}
+
+.tarjeta.estrecha.formulario-parcela {
+  width: min(100%, 72rem);
+  max-width: none;
+  padding: var(--espacio-4);
+}
+
+.mapa-parcela__herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+}
+
+.mapa-parcela__herramientas .boton {
+  flex: 1 1 10rem;
+}
+
+@media (min-width: 48rem) {
+  .tarjeta.estrecha.formulario-parcela {
+    padding: var(--espacio-8);
+  }
+}

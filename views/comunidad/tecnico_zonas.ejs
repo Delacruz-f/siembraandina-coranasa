@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+
+<section class="tarjeta estrecha">
+  <h1>Mis zonas de atención</h1>
+  <p class="tenue">Los agricultores podrán enviarte consultas en los distritos que agregues (máximo 20).</p>
+  <form method="post" action="/tecnico/zonas" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Departamento
+      <select id="consulta-departamento" required>
+        <option value="">Elige un departamento</option>
+        <% departamentos.forEach((departamento) => { %>
+          <option value="<%= departamento.id %>"><%= departamento.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Provincia
+      <select id="consulta-provincia" required>
+        <option value="">Elige una provincia</option>
+        <% provincias.forEach((provincia) => { %>
+          <option value="<%= provincia.id %>" data-departamento-id="<%= provincia.departamento_id %>"><%= provincia.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Distrito
+      <select id="consulta-distrito" name="distrito_id" required>
+        <option value="">Elige un distrito</option>
+      </select>
+    </label>
+    <button class="boton" type="submit">Agregar zona</button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <h2>Distritos registrados</h2>
+  <% if (distritos.length) { %>
+    <ul class="lista-registros">
+      <% distritos.forEach((distrito) => { %>
+        <li>
+          <%= distrito.nombre %>, <%= distrito.provincia %>, <%= distrito.departamento %>
+          <form method="post" action="/tecnico/zonas/<%= distrito.id %>/eliminar" class="en-linea">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="enlace peligro" type="submit">Quitar</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p class="estado-vacio">Todavía no registras distritos de atención.</p>
+  <% } %>
+</section>
+<script src="/js/consultas.js" defer></script>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,88 @@
+<%- include('../partials/head', { titulo: 'Usuarios' }) %>
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Gestión de la comunidad</p>
+    <h1>Usuarios</h1>
+    <p>Administra cuentas, roles y el estado de verificación del correo.</p>
+  </div>
+</section>
+<% const sesionUsuario = (typeof usuario !== 'undefined' && usuario && Array.isArray(usuario.permisos)) ? usuario : null; %>
+
+<form method="get" action="/admin/usuarios" class="formulario en-fila">
+  <label>Buscar por nombre o correo
+    <input name="q" value="<%= filtros.busqueda %>" maxlength="120">
+  </label>
+  <label>Rol
+    <select name="rol"><option value="">Todos</option><% roles.forEach((rol) => { %><option value="<%= rol.clave %>" <%= filtros.rol === rol.clave ? 'selected' : '' %>><%= rol.nombre %></option><% }) %></select>
+  </label>
+  <label>Estado
+    <select name="activo"><option value="">Todos</option><option value="1" <%= filtros.activo === '1' ? 'selected' : '' %>>Activos</option><option value="0" <%= filtros.activo === '0' ? 'selected' : '' %>>Suspendidos</option></select>
+  </label>
+  <label>Ordenar por
+    <select name="orden"><% [['creado_en','Fecha de registro'],['nombre','Nombre'],['email','Correo'],['activo','Estado']].forEach(([clave,nombre]) => { %><option value="<%= clave %>" <%= filtros.orden === clave ? 'selected' : '' %>><%= nombre %></option><% }) %></select>
+  </label>
+  <label>Dirección<select name="direccion"><option value="desc" <%= filtros.direccion === 'desc' ? 'selected' : '' %>>Descendente</option><option value="asc" <%= filtros.direccion === 'asc' ? 'selected' : '' %>>Ascendente</option></select></label>
+  <button class="boton" type="submit">Aplicar filtros</button>
+</form>
+<p class="tenue"><%= total %> usuario(s) · página <%= pagina %> de <%= paginas %></p>
+
+<div class="tabla-scroll"><table>
+  <thead><tr><th>Usuario</th><th>Correo</th><th>Roles actuales</th><th>Asignar rol</th><th>Cuenta</th></tr></thead>
+  <tbody>
+    <% usuarios.forEach((usuario) => { %>
+      <tr>
+        <td><strong><%= usuario.nombre || 'Sin nombre' %></strong><br><span class="tenue"><%= usuario.email %></span><br><span class="tenue">Registrado <%= fecha(usuario.creado_en) %></span></td>
+        <td>
+          <span class="etiqueta-estado"><%= usuario.email_verificado ? 'Verificado' : 'Sin verificar' %></span>
+          <% if (sesionUsuario && sesionUsuario.permisos && sesionUsuario.permisos.includes('usuarios.verificar') && !usuario.email_verificado) { %>
+            <form method="post" action="/admin/usuarios/<%= usuario.id %>/reenviar-verificacion" data-confirmar="¿Reenviar el correo de verificación a esta cuenta?" class="u-mt-2">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="enlace" type="submit">Reenviar verificación</button>
+            </form>
+            <form method="post" action="/admin/usuarios/<%= usuario.id %>/verificar-correo" data-confirmar="¿Marcar el correo de esta cuenta como verificado?" class="u-mt-2">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="enlace" type="submit">Marcar como verificado</button>
+            </form>
+          <% } %>
+        </td>
+        <td>
+          <% usuario.roles.forEach((rol) => { %>
+            <div class="acciones">
+              <span class="etiqueta-estado"><%= rol.nombre %><%= rol.es_principal ? ' · principal' : '' %></span>
+              <form method="post" action="/admin/usuarios/<%= usuario.id %>/roles/<%= rol.clave %>/quitar" data-confirmar="¿Retirar el rol «<%= rol.nombre %>» de esta cuenta?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="enlace peligro" type="submit">Quitar</button>
+              </form>
+            </div>
+          <% }) %>
+        </td>
+        <td>
+          <form method="post" action="/admin/usuarios/<%= usuario.id %>/rol" class="en-fila" data-confirmar="¿Establecer el rol seleccionado como principal? Los demás roles se conservarán.">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <select name="rol" aria-label="Asignar rol a <%= usuario.nombre || usuario.email %>">
+              <% roles.forEach((rol) => { %><option value="<%= rol.clave %>"><%= rol.nombre %></option><% }) %>
+            </select>
+            <button class="boton boton-secundario boton-pequeno" type="submit">Hacer principal</button>
+          </form>
+        </td>
+        <td>
+          <span class="etiqueta-estado"><%= usuario.activo ? 'Activa' : 'Suspendida' %></span>
+          <form method="post" action="/admin/usuarios/<%= usuario.id %>/estado" data-confirmar="¿<%= usuario.activo ? 'Suspender' : 'Reactivar' %> esta cuenta?" class="u-mt-2">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="activo" value="<%= usuario.activo ? '0' : '1' %>">
+            <button class="enlace <%= usuario.activo ? 'peligro' : '' %>" type="submit"><%= usuario.activo ? 'Suspender' : 'Reactivar' %></button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<% if (paginas > 1) { %>
+  <nav class="paginacion" aria-label="Páginas de usuarios">
+    <% if (pagina > 1) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&rol=<%= encodeURIComponent(filtros.rol) %>&activo=<%= filtros.activo %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina - 1 %>">Anterior</a><% } %>
+    <span>Página <%= pagina %> de <%= paginas %></span>
+    <% if (pagina < paginas) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&rol=<%= encodeURIComponent(filtros.rol) %>&activo=<%= filtros.activo %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina + 1 %>">Siguiente</a><% } %>
+  </nav>
+<% } %>
+<%- include('../partials/foot') %>

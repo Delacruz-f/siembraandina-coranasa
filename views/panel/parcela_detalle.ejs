@@ -1,0 +1,236 @@
+<%- include('../partials/head', { titulo: parcela.nombre }) %>
+
+<div class="barra-titulo">
+  <div>
+    <h1><%= parcela.nombre %></h1>
+    <p class="tenue"><%= parcela.cultivo %> · <%= parcela.zona_nombre %><% if (parcela.distrito) { %> · <%= parcela.distrito %>, <%= parcela.provincia %><% } %> · <%= Number(parcela.latitud) %>, <%= Number(parcela.longitud) %></p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton-secundario" href="/panel/parcelas/<%= parcela.id %>/editar">Editar</a>
+    <a class="boton boton-secundario" href="/panel/parcelas">Volver</a>
+  </div>
+</div>
+
+<%- include('../partials/condiciones-parcela', {
+  parcela,
+  condiciones,
+  pronosticoCondiciones,
+  recomendacion,
+  requerimiento,
+}) %>
+
+<section class="tarjeta">
+  <div class="barra-titulo">
+    <h2>Campañas</h2>
+    <a class="boton boton-secundario" href="/panel/parcelas/<%= parcela.id %>/campanias/nueva">Nueva campaña</a>
+  </div>
+  <% if (campanias.length) { %>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Cultivo</th><th>Variedad</th><th>Estado</th><th>Fechas previstas</th><th></th></tr></thead>
+        <tbody>
+          <% campanias.forEach((campania) => { %>
+            <tr>
+              <td><%= campania.cultivo %></td>
+              <td><%= campania.variedad || '—' %></td>
+              <td><%= campania.estado %></td>
+              <td><%= fecha(campania.fecha_inicio) %> – <%= fecha(campania.fecha_fin) %></td>
+              <td><a href="/panel/campanias/<%= campania.id %>">Abrir</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="estado-vacio">Todavía no hay campañas para esta parcela.</p>
+  <% } %>
+</section>
+
+<% if (requerimiento && chartData.etiquetas.length) { %>
+  <section class="tarjeta" id="lectura-manual">
+    <h2>Lecturas frente al rango ideal de <%= parcela.cultivo %></h2>
+    <p class="tenue">Rangos de referencia: humedad <%= Number(requerimiento.hum_min) %>–<%= Number(requerimiento.hum_max) %> %, temperatura <%= Number(requerimiento.temp_min) %>–<%= Number(requerimiento.temp_max) %> °C. Actualizados desde los requerimientos del cultivo y zona. Los valores automáticos NASA POWER son estimaciones de índice radicular y temperatura superficial, no mediciones directas a profundidad.</p>
+    <div class="graficos-lecturas">
+      <figure>
+        <figcaption>Humedad del suelo</figcaption>
+        <div class="grafico-contenedor">
+          <canvas id="grafico-humedad" data-datos="<%= JSON.stringify(chartData) %>" role="img" aria-label="Gráfico de humedad del suelo y su rango ideal"></canvas>
+        </div>
+      </figure>
+      <figure>
+        <figcaption>Temperatura del suelo</figcaption>
+        <div class="grafico-contenedor">
+          <canvas id="grafico-temperatura" data-datos="<%= JSON.stringify(chartData) %>" role="img" aria-label="Gráfico de temperatura del suelo y su rango ideal"></canvas>
+        </div>
+      </figure>
+    </div>
+  </section>
+  <script src="/vendor/chartjs/chart.umd.js" defer></script>
+  <script src="/js/lecturas-graficos.js" defer></script>
+<% } else if (!requerimiento) { %>
+  <p class="aviso aviso-aviso">No hay requerimientos de cultivo para esta zona; no se muestra una banda ideal.</p>
+<% } %>
+
+<section class="tarjeta">
+  <h2>Imágenes de la parcela</h2>
+  <form
+    id="form-imagenes-parcela"
+    method="post"
+    action="/panel/parcelas/<%= parcela.id %>/imagenes"
+    enctype="multipart/form-data"
+    class="formulario"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="carga-archivos" id="zona-arrastre" for="imagenes-parcela">
+      Arrastra fotos aquí o toca para elegir JPG, PNG o WEBP (hasta 5 imágenes, 10 MB cada una)
+      <input id="imagenes-parcela" type="file" name="imagenes" accept="image/jpeg,image/png,image/webp" multiple required>
+    </label>
+    <div id="vista-previa-imagenes" class="rejilla"></div>
+    <p id="estado-imagenes" role="status" aria-live="polite"></p>
+    <button class="boton" type="submit">Guardar imágenes</button>
+  </form>
+
+  <% if (imagenes.length) { %>
+    <div class="u-mt-4">
+      <%- include('../partials/galeria', { imagenes, titulo: `Imágenes de ${parcela.nombre}`, mostrarAtribucion: false }) %>
+    </div>
+    <ul class="lista-tarjetas u-mt-4">
+      <% imagenes.forEach((imagen) => { %>
+        <li class="tarjeta">
+          <p><%= imagen.alt %></p>
+          <form method="post" action="/panel/parcelas/<%= parcela.id %>/imagenes/<%= imagen.id %>/eliminar">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="enlace peligro" type="submit">Eliminar imagen</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p class="estado-vacio">Todavía no hay fotos en esta parcela.</p>
+  <% } %>
+</section>
+
+<div class="dos-columnas">
+  <section class="tarjeta" id="lectura-manual">
+    <h2>Registrar lectura manual</h2>
+    <form method="post" action="/parcelas/<%= parcela.id %>/lecturas" class="formulario" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Fecha
+        <input type="date" name="fecha" value="<%= hoy %>" max="<%= hoy %>" required>
+      </label>
+      <label>Humedad del suelo (%)
+        <input type="number" name="humedad" step="0.1" min="0" max="100" required>
+      </label>
+      <label>Temperatura del suelo (°C)
+        <input type="number" name="temperatura" step="0.1" min="-30" max="60" required>
+      </label>
+      <label>Observación (opcional)
+        <input name="observacion" maxlength="500" placeholder="Ej.: llovió anoche">
+      </label>
+      <button class="boton" type="submit">Guardar lectura</button>
+    </form>
+  </section>
+
+  <section class="tarjeta">
+    <div class="barra-titulo">
+      <h2>Historial de lecturas</h2>
+      <a class="boton boton-secundario" href="/panel/parcelas/<%= parcela.id %>/lecturas/importar">Importar CSV</a>
+    </div>
+    <% if (!lecturas.filas.length) { %>
+      <p class="tenue">Sin lecturas todavía. Registra una o espera la sincronización automática.</p>
+    <% } else { %>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Fecha</th><th>Humedad</th><th>Temp.</th><th>Fuente</th><th>Registró</th><th></th></tr></thead>
+          <tbody>
+            <% lecturas.filas.forEach(function (l) { %>
+              <tr>
+                <td><%= fecha(l.fecha) %></td>
+                <td><%= Number(l.humedad) %> %</td>
+                <td><%= Number(l.temperatura) %> °C</td>
+                <td><%= l.fuente_nombre %></td>
+                <td><%= l.registrado_por_nombre || 'Automática' %></td>
+                <td>
+                  <form method="post" action="/parcelas/<%= parcela.id %>/lecturas/<%= l.id %>/eliminar" class="en-linea" onsubmit="return confirm('¿Eliminar esta lectura?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="enlace peligro" type="submit">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% if (lecturas.paginas > 1) { %>
+        <nav class="paginacion" aria-label="Páginas de lecturas">
+          <% if (lecturas.pagina > 1) { %>
+            <a class="boton boton-secundario" href="?pagina=<%= lecturas.pagina - 1 %>" rel="prev">Anterior</a>
+          <% } %>
+          <span>Página <%= lecturas.pagina %> de <%= lecturas.paginas %></span>
+          <% if (lecturas.pagina < lecturas.paginas) { %>
+            <a class="boton boton-secundario" href="?pagina=<%= lecturas.pagina + 1 %>" rel="next">Siguiente</a>
+          <% } %>
+        </nav>
+      <% } %>
+    <% } %>
+  </section>
+</div>
+
+<section class="tarjeta">
+  <h2>Acceso de técnicos</h2>
+  <p class="tenue">Concede acceso a un técnico para que revise tu parcela. Si marcas «puede escribir», también podrá registrar lecturas.</p>
+
+  <form method="post" action="/panel/parcelas/<%= parcela.id %>/accesos" class="formulario" id="form-acceso" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Buscar técnico por nombre o correo
+      <input id="buscar-tecnico" type="search" minlength="2" placeholder="Ej.: María o maria@correo.pe" autocomplete="off">
+    </label>
+    <label>Técnico
+      <select name="tecnico_id" id="select-tecnico" required>
+        <option value="">Escribe al menos 2 letras para buscar</option>
+      </select>
+    </label>
+    <label class="casilla">
+      <input type="checkbox" name="puede_escribir" value="true"> Puede registrar lecturas en esta parcela
+    </label>
+    <button class="boton" type="submit">Conceder acceso</button>
+  </form>
+
+  <% if (accesos.length) { %>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Técnico</th><th>Escritura</th><th>Otorgado</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          <% accesos.forEach(function (a) { %>
+            <tr>
+              <td><%= a.tecnico_nombre %><br><span class="tenue"><%= a.tecnico_email %></span></td>
+              <td><%= a.puede_escribir ? 'Sí' : 'Solo lectura' %></td>
+              <td><%= fecha(a.otorgado_en) %></td>
+              <td><%= a.revocado_en ? 'Revocado' : 'Vigente' %></td>
+              <td>
+                <% if (!a.revocado_en) { %>
+                  <form method="post" action="/panel/parcelas/<%= parcela.id %>/accesos/<%= a.id %>/revocar" class="en-linea" onsubmit="return confirm('¿Revocar el acceso de este técnico?')">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="enlace peligro" type="submit">Revocar</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="tenue">Ningún técnico tiene acceso a esta parcela.</p>
+  <% } %>
+</section>
+
+<form method="post" action="/panel/parcelas/<%= parcela.id %>/eliminar" onsubmit="return confirm('¿Eliminar esta parcela y todas sus lecturas?')">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <button class="boton boton-peligro" type="submit">Archivar parcela</button>
+</form>
+
+<script src="/js/parcela.js" defer></script>
+<script src="/js/imagenes-parcela.js" defer></script>
+
+<%- include('../partials/foot') %>

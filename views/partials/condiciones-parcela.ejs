@@ -1,0 +1,234 @@
+<%
+  const limites = recomendacion && recomendacion.hr && recomendacion.tr
+    ? { humedad: recomendacion.hr, temperatura: recomendacion.tr }
+    : null;
+  const rangoConfianza = function (metrica) {
+    const rango = condiciones[metrica].rango;
+    if (rango.minimo === null || rango.maximo === null) return '';
+    return t('condiciones.confianza.difieren', {
+      minimo: rango.minimo,
+      maximo: rango.maximo,
+    });
+  };
+  const etiquetaConfianza = function (metrica) {
+    const lectura = condiciones[metrica];
+    if (lectura.coinciden === false) return rangoConfianza(metrica);
+    if (lectura.confianza === 'baja') return rangoConfianza(metrica);
+    if (lectura.confianza === 'alta' && lectura.coinciden === true) {
+      return t('condiciones.fuentesCoinciden');
+    }
+    return t(`condiciones.confianza.${lectura.confianza}`);
+  };
+  const claseConfianza = function (metrica) {
+    return condiciones[metrica].coinciden === false
+      ? 'baja'
+      : condiciones[metrica].confianza;
+  };
+  const posicion = function (valor, minimo, maximo) {
+    if (valor === null || !limites) return 0;
+    return Math.max(0, Math.min(100, ((valor - minimo) / (maximo - minimo)) * 100));
+  };
+  const fuentes = [
+    ...condiciones.humedad.fuentes,
+    ...condiciones.temperatura.fuentes,
+  ];
+  const clavesFuente = [...new Set([
+    ...fuentes.map((fuente) => fuente.clave),
+    ...(pronosticoCondiciones.fuentes || []),
+  ])];
+  const creditos = clavesFuente.map((clave) => ({
+    open_meteo: 'Open-Meteo.com',
+    open_meteo_suelo: 'Open-Meteo.com',
+    nasa_power: 'NASA POWER',
+    agromonitoring: 'Agromonitoring',
+    manual: t('condiciones.medicionPropia'),
+  }[clave])).filter(Boolean);
+  const fechaActualizacion = condiciones.actualizadaEn
+    ? new Date(condiciones.actualizadaEn).getTime()
+    : null;
+  const minutosTranscurridos = fechaActualizacion === null
+    ? null
+    : Math.max(0, Math.floor((Date.now() - fechaActualizacion) / 60000));
+  const textoActualizacion = minutosTranscurridos === null
+    ? t('condiciones.sinActualizacion')
+    : minutosTranscurridos < 60
+      ? t('condiciones.actualizadoMinutos', { minutos: Math.max(1, minutosTranscurridos) })
+      : t('condiciones.actualizadoHoras', {
+        horas: Math.floor(minutosTranscurridos / 60),
+      });
+%>
+
+<section class="tarjeta condiciones-parcela" aria-labelledby="titulo-condiciones-parcela">
+  <div class="condiciones-parcela__cabecera">
+    <div>
+      <p class="etiqueta"><%= t('condiciones.etiqueta') %></p>
+      <h2 id="titulo-condiciones-parcela"><%= t('condiciones.titulo') %></h2>
+    </div>
+    <span class="insignia condiciones-parcela__confianza condiciones-parcela__confianza--<%= condiciones.confianza %>">
+      <%= t(`condiciones.confianza.${condiciones.confianza}`) %>
+    </span>
+  </div>
+
+  <div class="condiciones-parcela__veredicto condiciones-parcela__veredicto--<%= recomendacion.cls %>">
+    <strong><%= t(recomendacion.titulo) %></strong>
+    <p><%= t(recomendacion.frase) %></p>
+  </div>
+
+  <div class="condiciones-parcela__medidores">
+    <% [
+      {
+        clave: 'humedad',
+        titulo: t('condiciones.humedad'),
+        unidad: '%',
+        valor: condiciones.humedad.valor,
+        minimo: limites && limites.humedad[0],
+        maximo: limites && limites.humedad[1],
+        escalaMinima: 0,
+        escalaMaxima: 100,
+      },
+      {
+        clave: 'temperatura',
+        titulo: t('condiciones.temperatura'),
+        unidad: '°C',
+        valor: condiciones.temperatura.valor,
+        minimo: limites && limites.temperatura[0],
+        maximo: limites && limites.temperatura[1],
+        escalaMinima: -30,
+        escalaMaxima: 60,
+      },
+    ].forEach((medidor) => { %>
+      <article class="condiciones-medidor">
+        <div class="condiciones-medidor__encabezado">
+          <h3><%= medidor.titulo %></h3>
+          <span class="condiciones-parcela__confianza condiciones-parcela__confianza--<%= claseConfianza(medidor.clave) %>">
+            <%= etiquetaConfianza(medidor.clave) %>
+          </span>
+        </div>
+        <p class="condiciones-medidor__valor">
+          <% if (medidor.valor === null) { %>
+            <%= t('condiciones.sinDatos') %>
+          <% } else { %>
+            <%= medidor.valor %> <%= medidor.unidad %>
+          <% } %>
+        </p>
+        <% if (limites) { %>
+          <p class="condiciones-medidor__rango">
+            <%= t('condiciones.rangoIdeal', {
+              minimo: medidor.minimo,
+              maximo: medidor.maximo,
+              unidad: medidor.unidad,
+            }) %>
+          </p>
+          <div
+            class="condiciones-medidor__escala"
+            role="img"
+            aria-label="<%= t('condiciones.medidorAccesible', {
+              metrica: medidor.titulo,
+              minimo: medidor.minimo,
+              maximo: medidor.maximo,
+              valor: medidor.valor === null ? t('condiciones.sinDatos') : medidor.valor,
+              unidad: medidor.unidad,
+            }) %>"
+            style="--medidor-banda-inicio: <%= posicion(medidor.minimo, medidor.escalaMinima, medidor.escalaMaxima) %>%; --medidor-banda-fin: <%= posicion(medidor.maximo, medidor.escalaMinima, medidor.escalaMaxima) %>%; --medidor-valor: <%= posicion(medidor.valor, medidor.escalaMinima, medidor.escalaMaxima) %>%;"
+          >
+            <span class="condiciones-medidor__banda"></span>
+            <% if (medidor.valor !== null) { %>
+              <span class="condiciones-medidor__marca"></span>
+            <% } %>
+          </div>
+        <% } %>
+
+        <% if (condiciones[medidor.clave].fuentes.length) { %>
+          <ul class="condiciones-medidor__fuentes" aria-label="<%= t('condiciones.fuentesUsadas') %>">
+            <% condiciones[medidor.clave].fuentes.forEach((fuente) => { %>
+              <li>
+                <span><%= fuente.nombre %></span>
+                <span><%= fuente.valor %> <%= medidor.unidad %></span>
+                <span><%= t(`condiciones.tipo.${fuente.tipo}`) %></span>
+                <span><%= t('condiciones.fuenteEnFecha', { fecha: fecha(fuente.fecha) }) %></span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </article>
+    <% }) %>
+  </div>
+
+  <section class="condiciones-pronostico" aria-labelledby="titulo-pronostico-condiciones">
+    <h3 id="titulo-pronostico-condiciones"><%= t('condiciones.pronosticoTitulo') %></h3>
+    <% if (pronosticoCondiciones.dias.length) { %>
+      <ul class="condiciones-pronostico__dias">
+        <% pronosticoCondiciones.dias.forEach((dia) => {
+          const etiqueta = dia.estado === 'helada'
+            ? t('condiciones.dia.helada')
+            : dia.estado === 'lluvia'
+              ? t('condiciones.dia.lluvia')
+              : dia.estado === 'bueno'
+                ? t('condiciones.dia.bueno')
+                : t('condiciones.dia.sinDatos');
+          const icono = dia.estado === 'helada'
+            ? '❄'
+            : dia.estado === 'lluvia'
+              ? '☔'
+              : dia.estado === 'bueno'
+                ? '✓'
+                : '—';
+        %>
+          <li class="condiciones-pronostico__dia condiciones-pronostico__dia--<%= dia.estado %>">
+            <strong><%= fecha(dia.fecha) %></strong>
+            <span class="condiciones-pronostico__estado">
+              <span aria-hidden="true"><%= icono %></span>
+              <%= etiqueta %>
+            </span>
+            <% if (dia.temperaturaMinima !== null) { %>
+              <span><%= t('condiciones.minima', { valor: dia.temperaturaMinima }) %></span>
+            <% } %>
+            <% if (dia.precipitacionMm !== null) { %>
+              <span><%= t('condiciones.lluvia', { valor: dia.precipitacionMm }) %></span>
+            <% } %>
+            <% if (dia.humedadSuelo !== null) { %>
+              <span><%= t('condiciones.humedadPrevista', { valor: dia.humedadSuelo }) %></span>
+            <% } %>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p class="tenue"><%= t('condiciones.sinPronostico') %></p>
+    <% } %>
+  </section>
+
+  <% if (recomendacion.mejorVentana) { %>
+    <p class="condiciones-parcela__ventana">
+      <strong><%= t('condiciones.mejorVentana') %></strong>
+      <%= fecha(recomendacion.mejorVentana.inicio) %>
+      <% if (recomendacion.mejorVentana.fin !== recomendacion.mejorVentana.inicio) { %>
+        – <%= fecha(recomendacion.mejorVentana.fin) %>
+      <% } %>
+    </p>
+  <% } %>
+
+  <details class="condiciones-parcela__motivos">
+    <summary><%= t('condiciones.porQue') %></summary>
+    <% if (recomendacion.motivos.length) { %>
+      <ul>
+        <% recomendacion.motivos.forEach((motivo) => { %>
+          <li><%= t(motivo) %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p><%= t('condiciones.motivo.sueloEnRango') %></p>
+    <% } %>
+  </details>
+
+  <div class="condiciones-parcela__pie">
+    <p><%= textoActualizacion %></p>
+    <% if (creditos.length) { %>
+      <p><%= t('condiciones.creditos', { fuentes: creditos.join(', ') }) %></p>
+    <% } %>
+    <% if (!condiciones.lecturaManualReciente) { %>
+      <a class="boton boton-secundario" href="#lectura-manual">
+        <%= t('condiciones.confirmarMedicion') %>
+      </a>
+    <% } %>
+  </div>
+</section>

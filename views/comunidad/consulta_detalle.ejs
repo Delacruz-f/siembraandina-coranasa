@@ -1,0 +1,89 @@
+<%- include('../partials/head') %>
+
+<article class="tarjeta">
+  <p class="etiqueta"><%= consulta.estado %> · <%= consulta.distrito %>, <%= consulta.provincia %>, <%= consulta.departamento %></p>
+  <h1><%= consulta.titulo %></h1>
+  <% if (consulta.cultivo) { %><p><strong>Cultivo:</strong> <%= consulta.cultivo %></p><% } %>
+  <p><%= consulta.contenido %></p>
+  <p class="tenue">Enviada por <%= consulta.agricultor || "un agricultor" %> · <%= fechaHora(consulta.created_at) %></p>
+
+  <% if (consulta.archivos.length) { %>
+    <div class="u-mt-4">
+      <%- include('../partials/galeria', { imagenes: consulta.archivos, titulo: `Fotos de la consulta: ${consulta.titulo}`, mostrarAtribucion: false }) %>
+    </div>
+  <% } %>
+</article>
+
+<% if (consulta.consultaPublica) { %>
+  <section class="tarjeta" aria-labelledby="consulta-publica-adjunta-titulo">
+    <h2 id="consulta-publica-adjunta-titulo"><%= t("consultaPublica.adjuntaTitulo") %></h2>
+    <p><%= t("consultaPublica.adjuntaTexto") %></p>
+    <ul>
+      <% (consulta.consultaPublica.ventanas_sugeridas || []).forEach((ventana) => { %>
+        <li>
+          <strong><%= ventana.nombre %></strong>:
+          <%= new Date(`${ventana.inicio}T00:00:00Z`).toLocaleDateString("es-PE", { timeZone: "UTC" }) %> –
+          <%= new Date(`${ventana.fin}T00:00:00Z`).toLocaleDateString("es-PE", { timeZone: "UTC" }) %>
+          (<%= Math.round(ventana.puntaje) %> %)
+          <% if (ventana.cosecha) { %>
+            <br><%= t("consultaPublica.cosecha") %>:
+            <%= new Date(`${ventana.cosecha.inicio}T00:00:00Z`).toLocaleDateString("es-PE", { timeZone: "UTC" }) %> –
+            <%= new Date(`${ventana.cosecha.fin}T00:00:00Z`).toLocaleDateString("es-PE", { timeZone: "UTC" }) %>
+            <% if (ventana.cosecha.referencial) { %>
+              (<%= t("consultaPublica.referencial") %>)
+            <% } %>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  </section>
+<% } %>
+
+<% if (consulta.respuesta) { %>
+  <section class="tarjeta">
+    <h2>Respuesta del técnico</h2>
+    <p><%= consulta.respuesta %></p>
+    <p class="tenue"><%= consulta.tecnico || "Técnico" %> · <%= fechaHora(consulta.respondida_en) %></p>
+    <% if (!modoTecnico && consulta.estado !== 'cerrada' && !consulta.calificacion) { %>
+      <form method="post" action="/panel/consultas/<%= consulta.id %>/respuestas/<%= consulta.respuesta_id %>/calificar" class="formulario">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Calificación de la respuesta
+          <select name="puntuacion" required>
+            <option value="">Elige de 1 a 5</option>
+            <option value="1">1 - No resolvió mi duda</option>
+            <option value="2">2 - Necesita mejoras</option>
+            <option value="3">3 - Adecuada</option>
+            <option value="4">4 - Muy útil</option>
+            <option value="5">5 - Excelente</option>
+          </select>
+        </label>
+        <label>Comentario (opcional)
+          <input name="comentario" maxlength="500">
+        </label>
+        <button class="boton" type="submit">Enviar calificación</button>
+      </form>
+    <% } else if (consulta.calificacion) { %>
+      <p>Tu calificación: <strong><%= consulta.calificacion.puntuacion %>/5</strong><% if (consulta.calificacion.comentario) { %> · <%= consulta.calificacion.comentario %><% } %></p>
+    <% } %>
+  </section>
+<% } else if (modoTecnico && consulta.estado === 'abierta') { %>
+  <section class="tarjeta">
+    <h2>Responder consulta</h2>
+    <form method="post" action="/tecnico/consultas/<%= consulta.id %>/responder" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Respuesta
+        <textarea name="contenido" rows="6" minlength="10" maxlength="5000" required></textarea>
+      </label>
+      <button class="boton" type="submit">Enviar respuesta</button>
+    </form>
+  </section>
+<% } %>
+
+<% if (!modoTecnico && consulta.estado !== 'cerrada') { %>
+  <form method="post" action="/panel/consultas/<%= consulta.id %>/cerrar">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="boton boton-secundario" type="submit">Cerrar consulta</button>
+  </form>
+<% } %>
+
+<%- include('../partials/foot') %>

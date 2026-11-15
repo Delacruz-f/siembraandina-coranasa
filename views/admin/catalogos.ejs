@@ -1,0 +1,74 @@
+<%- include('../partials/head', { titulo }) %>
+<h1>Catálogos del sistema</h1>
+<p class="tenue">Los registros se conservan para proteger referencias históricas. Edita o crea valores; para ubicación usa los IDs de la tabla y verifica su jerarquía.</p>
+
+<nav class="pestanas" aria-label="Tipo de catálogo">
+  <% [['cultivo','Cultivos'],['variedad','Variedades'],['zona','Zonas'],['requerimiento','Requerimientos'],['calendario','Calendario'],['departamento','Departamentos'],['provincia','Provincias'],['distrito','Distritos'],['comunidad','Comunidades']].forEach(([clave,nombre]) => { %>
+    <a class="boton boton-secundario" href="/admin/catalogos?tipo=<%= clave %>"><%= nombre %></a>
+  <% }) %>
+</nav>
+
+<form method="get" action="/admin/catalogos" class="formulario en-fila">
+  <input type="hidden" name="tipo" value="<%= tipo %>">
+  <label>Buscar en este catálogo
+    <input name="q" value="<%= busqueda %>" maxlength="120">
+  </label>
+  <label>Ordenar por<select name="orden"><option value="nombre" <%= orden === 'nombre' ? 'selected' : '' %>>Nombre / relación</option><option value="id" <%= orden === 'id' ? 'selected' : '' %>>ID</option></select></label>
+  <label>Dirección<select name="direccion"><option value="asc" <%= direccion === 'asc' ? 'selected' : '' %>>Ascendente</option><option value="desc" <%= direccion === 'desc' ? 'selected' : '' %>>Descendente</option></select></label>
+  <button class="boton boton-secundario" type="submit">Buscar</button>
+</form>
+
+<section class="tarjeta">
+  <h2><%= tipo %>: <%= total %> registro(s)</h2>
+  <% if (rows.length) { %>
+    <div class="tabla-scroll"><table>
+      <thead><tr><th>ID</th><th>Valores</th><th>Editar</th></tr></thead>
+      <tbody><% rows.forEach((fila) => { %>
+        <tr>
+          <td><%= fila.id %></td>
+          <td><% Object.keys(fila).filter((clave) => clave !== 'id').forEach((clave) => { %><strong><%= clave %>:</strong> <%= fila[clave] == null ? '—' : fila[clave] %><br><% }) %></td>
+          <td>
+            <form method="post" action="/admin/catalogos/<%= tipo %>/<%= fila.id %>" class="formulario" data-confirmar="¿Guardar los cambios de este catálogo?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% campos.forEach((campo) => { const numerico = ['orden','altitud_min_m','altitud_max_m','cultivo_id','zona_id','hum_min','hum_max','temp_min','temp_max','mes_inicio','mes_fin','departamento_id','provincia_id','distrito_id','latitud','longitud'].includes(campo.clave); const valor = fila[campo.clave] == null ? '' : (typeof fila[campo.clave] === 'boolean' ? Number(fila[campo.clave]) : fila[campo.clave]); %>
+                <label><%= campo.nombre %><input name="<%= campo.clave %>" type="<%= numerico ? 'number' : 'text' %>" value="<%= valor %>" <%= numerico ? 'step="any"' : '' %> required></label>
+              <% }) %>
+              <button class="boton boton-secundario boton-pequeno" type="submit">Guardar</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %></tbody>
+    </table></div>
+  <% } else { %><p class="tenue">No se encontraron registros.</p><% } %>
+  <% if (paginas > 1) { %>
+    <nav class="paginacion" aria-label="Páginas del catálogo">
+      <% if (pagina > 1) { %><a class="boton boton-secundario" href="?tipo=<%= tipo %>&q=<%= encodeURIComponent(busqueda) %>&orden=<%= orden %>&direccion=<%= direccion %>&pagina=<%= pagina - 1 %>">Anterior</a><% } %>
+      <span>Página <%= pagina %> de <%= paginas %></span>
+      <% if (pagina < paginas) { %><a class="boton boton-secundario" href="?tipo=<%= tipo %>&q=<%= encodeURIComponent(busqueda) %>&orden=<%= orden %>&direccion=<%= direccion %>&pagina=<%= pagina + 1 %>">Siguiente</a><% } %>
+    </nav>
+  <% } %>
+</section>
+
+<section class="tarjeta">
+  <h2>Crear registro: <%= tipo %></h2>
+  <form method="post" action="/admin/catalogos/<%= tipo %>" class="formulario" data-confirmar="¿Crear este registro de catálogo?">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% campos.forEach((campo) => { const numerico = ['orden','altitud_min_m','altitud_max_m','cultivo_id','zona_id','hum_min','hum_max','temp_min','temp_max','mes_inicio','mes_fin','departamento_id','provincia_id','distrito_id','latitud','longitud'].includes(campo.clave); %>
+      <label><%= campo.nombre %><input name="<%= campo.clave %>" type="<%= numerico ? 'number' : 'text' %>" <%= numerico ? 'step="any"' : '' %> required></label>
+    <% }) %>
+    <button class="boton" type="submit">Crear registro</button>
+  </form>
+</section>
+
+<% if (tipo === 'variedad') { %>
+  <section class="tarjeta">
+    <h2>Vincular variedad a cultivo</h2>
+    <form method="post" action="/admin/catalogos/vinculos-variedad" class="formulario en-fila" data-confirmar="¿Vincular esta variedad al cultivo?">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Cultivo<select name="cultivo_id" required><% cultivos.forEach((cultivo) => { %><option value="<%= cultivo.id %>"><%= cultivo.nombre %></option><% }) %></select></label>
+      <label>ID de variedad<input type="number" name="variedad_id" min="1" required></label>
+      <button class="boton" type="submit">Vincular</button>
+    </form>
+  </section>
+<% } %>
+<%- include('../partials/foot') %>

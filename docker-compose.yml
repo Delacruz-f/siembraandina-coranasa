@@ -1,0 +1,93 @@
+# Siembra Andina — entorno completo con un solo comando:
+#   docker compose up --build
+# Servicios: app (Node 20) y postgres (PostgreSQL 15 con respaldo diario).
+# Los secretos se leen del archivo `.env` (copia `.env.example` y completa).
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-siembra_andina}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cambia-esta-clave}
+      TZ: America/Lima
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+      - respaldos:/respaldos
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-siembra_andina}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Sin puerto publicado: solo la app habla con la base dentro de la red interna.
+    networks: [interna]
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      SESSION_SECRET: ${SESSION_SECRET:?Define SESSION_SECRET en .env (mínimo 32 caracteres)}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-0}
+      DB_CLIENT: pg
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-cambia-esta-clave}
+      DB_NAME: ${DB_NAME:-siembra_andina}
+      UPLOADS_DIR: storage/uploads
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      MIGRATE_ON_START: ${MIGRATE_ON_START:-true}
+      SEED_ON_START: ${SEED_ON_START:-true}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-Siembra Andina <no-reply@example.com>}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${PUERTO_PUBLICO:-3000}:3000"
+    volumes:
+      - subidas:/app/storage/uploads
+    networks: [interna]
+
+  # Respaldo diario de la base (03:00 America/Lima) comprimido en el volumen
+  # "respaldos". Ver docs/despliegue.md para restaurar y copiar fuera.
+  respaldo:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:-cambia-esta-clave}
+      DB_USER: ${DB_USER:-postgres}
+      DB_NAME: ${DB_NAME:-siembra_andina}
+      RESPALDO_HORAS: ${RESPALDO_HORAS:-24}
+      RESPALDO_RETENCION_DIAS: ${RESPALDO_RETENCION_DIAS:-14}
+      TZ: America/Lima
+    volumes:
+      - respaldos:/respaldos
+      - ./docker/respaldo.sh:/usr/local/bin/respaldo.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/respaldo.sh"]
+    networks: [interna]
+
+volumes:
+  datos_postgres:
+  respaldos:
+  subidas:
+
+networks:
+  interna:
+    driver: bridge

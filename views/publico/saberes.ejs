@@ -1,0 +1,73 @@
+<%- include('../partials/head') %>
+
+<header class="pagina-publica__encabezado">
+  <p class="etiqueta">Comunidad</p>
+  <h1>Saberes agrícolas</h1>
+  <p class="tenue">Experiencias y conocimientos para dialogar con el trabajo en la chacra.</p>
+</header>
+
+<section class="tarjeta tarjeta--hundida" aria-labelledby="titulo-filtros-saberes">
+  <h2 id="titulo-filtros-saberes">Buscar artículos</h2>
+  <form action="/saberes" method="get" class="formulario formulario--filtros">
+    <label for="busqueda-saberes">Palabras clave
+      <input id="busqueda-saberes" name="q" type="search" value="<%= filtros.busqueda || '' %>" maxlength="120">
+    </label>
+    <label for="categoria-saberes">Categoría
+      <select id="categoria-saberes" name="categoria">
+        <option value="">Todas las categorías</option>
+        <% categorias.forEach((categoria) => { %>
+          <option value="<%= categoria.slug %>" <%= filtros.categoria === categoria.slug ? "selected" : "" %>><%= categoria.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label for="etiqueta-saberes">Etiqueta
+      <select id="etiqueta-saberes" name="etiqueta">
+        <option value="">Todas las etiquetas</option>
+        <% etiquetas.forEach((etiqueta) => { %>
+          <option value="<%= etiqueta.slug %>" <%= filtros.etiqueta === etiqueta.slug ? "selected" : "" %>><%= etiqueta.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <button class="boton" type="submit">Buscar</button>
+    <a class="boton boton--secundario" href="/saberes">Limpiar</a>
+  </form>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-resultados-saberes">
+  <div class="barra-titulo">
+    <h2 id="titulo-resultados-saberes">Artículos</h2>
+    <p class="tenue"><%= total %> resultado<%= total === 1 ? "" : "s" %></p>
+  </div>
+  <% if (articulos.length) { %>
+    <div class="rejilla tarjetas-articulos">
+      <% articulos.forEach((articulo) => { %>
+        <article class="tarjeta tarjeta-articulo">
+          <p class="etiqueta"><%= articulo.categoria_nombre %></p>
+          <h3><a href="/saberes/<%= encodeURIComponent(articulo.slug) %>"><%= articulo.titulo %></a></h3>
+          <p class="tenue"><%= articulo.resumen %></p>
+          <% if (articulo.autor_nombre) { %><p class="tarjeta-articulo__autor">Por <%= articulo.autor_nombre %></p><% } %>
+          <p class="tarjeta-articulo__fecha">          <time datetime="<%= fechaISO(articulo.publicada_en) %>"><%= fecha(articulo.publicada_en) %></time></p>
+        </article>
+      <% }) %>
+    </div>
+    <% if (paginas > 1) { %>
+      <nav class="paginacion" aria-label="Paginación de artículos">
+        <% if (filtros.pagina > 1) { %>
+          <a class="boton boton--secundario" rel="prev" href="/saberes?<%= new URLSearchParams({ q: filtros.busqueda || '', categoria: filtros.categoria || '', etiqueta: filtros.etiqueta || '', pagina: String(filtros.pagina - 1) }) %>">Anterior</a>
+        <% } %>
+        <span aria-current="page">Página <%= filtros.pagina %> de <%= paginas %></span>
+        <% if (filtros.pagina < paginas) { %>
+          <a class="boton boton--secundario" rel="next" href="/saberes?<%= new URLSearchParams({ q: filtros.busqueda || '', categoria: filtros.categoria || '', etiqueta: filtros.etiqueta || '', pagina: String(filtros.pagina + 1) }) %>">Siguiente</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } else { %>
+    <div class="vacio">
+      <h3>No encontramos artículos</h3>
+      <p>Prueba con otros términos o elimina los filtros.</p>
+      <a href="/saberes" class="boton boton--secundario">Ver todos los saberes</a>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

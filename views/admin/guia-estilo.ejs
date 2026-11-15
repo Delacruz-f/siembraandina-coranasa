@@ -1,0 +1,17 @@
+<%- include('../partials/head', { titulo: 'Guía de estilo' }) %>
+
+<div class="barra-titulo">
+  <div>
+    <p class="etiqueta">Sistema de diseño · solo administración</p>
+    <h1>Guía de estilo</h1>
+    <p class="tenue">Componentes accesibles en tema claro y oscuro, listos para reutilizar.</p>
+  </div>
+  <a class="boton boton--secundario" href="/admin">Volver a administración</a>
+</div>
+
+<section class="guia-temas" aria-label="Muestras de componentes en temas claro y oscuro">
+  <%- include('./_muestra-componentes', { prefijo: 'claro', tema: 'claro', tituloTema: 'Tema claro' }) %>
+  <%- include('./_muestra-componentes', { prefijo: 'oscuro', tema: 'oscuro', tituloTema: 'Tema oscuro' }) %>
+</section>
+
+<%- include('../partials/foot') %>

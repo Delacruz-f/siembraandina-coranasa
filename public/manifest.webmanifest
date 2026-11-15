@@ -1,0 +1,49 @@
+{
+  "id": "/",
+  "name": "Siembra Andina",
+  "short_name": "Siembra",
+  "description": "Cuándo sembrar papa, maíz y quinua combinando el calendario tradicional con la humedad y temperatura del suelo.",
+  "lang": "es-PE",
+  "dir": "ltr",
+  "start_url": "/?origen=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#EEF1F9",
+  "theme_color": "#4F46E5",
+  "categories": ["education", "productivity", "weather"],
+  "icons": [
+    {
+      "src": "/img/pwa/icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/pwa/icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/pwa/icono-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendario",
+      "short_name": "Calendario",
+      "url": "/calendario",
+      "icons": [{ "src": "/img/pwa/icono-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cultivos",
+      "short_name": "Cultivos",
+      "url": "/cultivos",
+      "icons": [{ "src": "/img/pwa/icono-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

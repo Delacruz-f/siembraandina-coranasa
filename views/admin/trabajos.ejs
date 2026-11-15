@@ -1,0 +1,36 @@
+<%- include('../partials/head', { titulo }) %>
+<h1>Trabajos programados</h1>
+<p class="tenue">Las ejecuciones automáticas y manuales quedan registradas. Una ejecución simultánea del mismo trabajo no se duplica.</p>
+
+<div class="rejilla">
+  <% trabajos.forEach((trabajo) => { %>
+    <section class="tarjeta">
+      <h2><%= trabajo.nombre %></h2>
+      <p><strong>Horario:</strong> <code><%= trabajo.horario %></code> (America/Lima)</p>
+      <% if (trabajo.ejecutando) { %>
+        <p class="insignia insignia-aviso" role="status">En ejecución en este servidor</p>
+      <% } %>
+      <% if (trabajo.ultima) { %>
+        <dl class="datos">
+          <div><dt>Último estado</dt><dd><%= trabajo.ultima.estado %></dd></div>
+          <div><dt>Inicio</dt><dd><%= fechaHora(trabajo.ultima.iniciado_en) %></dd></div>
+          <div><dt>Origen</dt><dd><%= trabajo.ultima.origen %></dd></div>
+          <div><dt>Ejecutado por</dt><dd><%= trabajo.ultima.ejecutado_por || (trabajo.ultima.origen === 'cron' ? 'Sistema' : 'Cuenta eliminada') %></dd></div>
+        </dl>
+        <% if (trabajo.ultima.resultado) { %>
+          <p><strong>Resultado:</strong> <code><%= JSON.stringify(trabajo.ultima.resultado) %></code></p>
+        <% } %>
+        <% if (trabajo.ultima.error) { %>
+          <p class="aviso aviso-error" role="alert"><%= trabajo.ultima.error %></p>
+        <% } %>
+      <% } else { %>
+        <p class="estado-vacio">Todavía no hay ejecuciones registradas.</p>
+      <% } %>
+      <form method="post" action="/admin/trabajos/<%= trabajo.clave %>/ejecutar" data-confirmar="¿Ejecutar ahora «<%= trabajo.nombre %>»?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="boton boton-secundario" type="submit" <%= trabajo.ejecutando ? 'disabled' : '' %>>Ejecutar ahora</button>
+      </form>
+    </section>
+  <% }) %>
+</div>
+<%- include('../partials/foot') %>

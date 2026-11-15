@@ -1,0 +1,51 @@
+<%
+  // Etiqueta <picture> reutilizable con srcset, sizes y proporción reservada.
+  // Variables:
+  //  imagen  -> objeto de imagenesServicio.describe(): { alt, ancho, alto,
+  //             variantes:[{ancho,webp,jpg,anchoPx,altoPx}], bajaResolucion,
+  //             autor, autorUrl, licencia, licenciaUrl, proporcion }
+  //  sizes   -> atributo sizes (por defecto pantalla completa)
+  //  clase   -> clase CSS para la <img>
+  //  eager   -> true para la imagen principal (prioridad alta, sin lazy)
+  //  mostrarAtribucion -> true para incluir el pie con autor y licencia
+  const imagenInterna = typeof imagen !== "undefined" ? imagen : null;
+  const sizesInterno = typeof sizes !== "undefined" && sizes ? sizes : "100vw";
+  const claseInterna = typeof clase !== "undefined" && clase ? clase : "";
+  const eagerInterno = typeof eager !== "undefined" && eager;
+  const atribucion = typeof mostrarAtribucion !== "undefined" && mostrarAtribucion;
+  const variantes = imagenInterna && imagenInterna.variantes ? imagenInterna.variantes : [];
+  const srcsetWebp = variantes.map((v) => `${v.webp} ${v.anchoPx}w`).join(", ");
+  const srcsetJpg = variantes.map((v) => `${v.jpg} ${v.anchoPx}w`).join(", ");
+  const ultima = variantes.length ? variantes[variantes.length - 1] : null;
+  const proporciones = imagenInterna ? imagenInterna.proporcion : "3 / 2";
+%>
+<% if (imagenInterna && variantes.length) { %>
+<figure class="imagen-responsiva<%= imagenInterna.bajaResolucion ? ' imagen-responsiva--baja' : '' %>" data-proporcion="<%= proporciones %>">
+  <picture>
+    <source type="image/webp" srcset="<%= srcsetWebp %>" sizes="<%= sizesInterno %>">
+    <source type="image/jpeg" srcset="<%= srcsetJpg %>" sizes="<%= sizesInterno %>">
+    <img
+      class="<%= claseInterna %>"
+      src="<%= ultima.webp %>"
+      alt="<%= imagenInterna.alt %>"
+      width="<%= imagenInterna.ancho || ultima.anchoPx %>"
+      height="<%= imagenInterna.alto || ultima.altoPx %>"
+      decoding="async"
+      <%- eagerInterno ? 'fetchpriority="high"' : 'loading="lazy"' %>
+    >
+  </picture>
+  <% if (imagenInterna.bajaResolucion) { %>
+    <span class="imagen-responsiva__aviso">Imagen de baja resolución</span>
+  <% } %>
+  <% if (atribucion && (imagenInterna.autor || imagenInterna.licencia)) { %>
+    <figcaption class="imagen-responsiva__credito">
+      <% if (imagenInterna.autor) { %>
+        <% if (imagenInterna.autorUrl) { %><a href="<%= imagenInterna.autorUrl %>" rel="noopener noreferrer nofollow" target="_blank"><%= imagenInterna.autor %></a><% } else { %><%= imagenInterna.autor %><% } %>
+      <% } %>
+      <% if (imagenInterna.licencia) { %>
+        · <% if (imagenInterna.licenciaUrl) { %><a href="<%= imagenInterna.licenciaUrl %>" rel="noopener noreferrer nofollow" target="_blank"><%= imagenInterna.licencia %></a><% } else { %><%= imagenInterna.licencia %><% } %>
+      <% } %>
+    </figcaption>
+  <% } %>
+</figure>
+<% } %>

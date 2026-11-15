@@ -1,0 +1,44 @@
+<%- include('../partials/head', { titulo: 'Mis parcelas' }) %>
+
+<div class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Mi espacio de cultivo</p>
+    <h1>Mis parcelas</h1>
+    <p>Organiza tus chacras y consulta cada una cuando lo necesites.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/panel/parcelas/nueva">Nueva parcela</a>
+  </div>
+</div>
+
+<% if (!parcelas.length) { %>
+<section class="tarjeta centrada">
+  <p class="tenue">Todavía no registraste parcelas.</p>
+  <a class="boton" href="/panel/parcelas/nueva">Crear parcela</a>
+</section>
+<% } else { %>
+<div class="tabla-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Parcela</th>
+        <th>Cultivo</th>
+        <th>Zona</th>
+        <th>Ubicación</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% parcelas.forEach(function (p) { %>
+      <tr>
+        <td><a href="/panel/parcelas/<%= p.id %>"><%= p.nombre %></a></td>
+        <td><%= p.cultivo %></td>
+        <td><%= p.zona_nombre %></td>
+        <td><%= Number(p.latitud) %>, <%= Number(p.longitud) %></td>
+        <td><a href="/panel/parcelas/<%= p.id %>/editar">Editar</a></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %> <%- include('../partials/foot') %>

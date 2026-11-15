@@ -1,0 +1,46 @@
+<%
+  const inicialPublico = (usuario && usuario.nombre ? usuario.nombre : "?").slice(0, 1).toUpperCase();
+%>
+<div class="shell--publico">
+  <header class="cabecera-publica">
+    <div class="cabecera-publica__contenedor">
+      <a class="marca" href="/" aria-label="<%= t("app.nombre") %>, <%= t("nav.inicio") %>">
+        <span class="marca__icono"><%- include("../iconos/brote") %></span>
+        <span class="marca__texto"><%= t("app.nombre") %></span>
+      </a>
+      <input type="checkbox" id="menu-publico-toggle" class="cabecera-publica__toggle" aria-hidden="true">
+      <label for="menu-publico-toggle" class="cabecera-publica__hamburguesa" aria-label="<%= t('nav.abrirMenu') %>">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+      <nav class="nav-publica" aria-label="<%= t("nav.principal") %>">
+        <div class="nav-publica__links">
+          <a href="/" <%= rutaActual === "/" ? 'aria-current="page"' : "" %>><%= t("nav.inicio") %></a>
+          <a href="/consulta" <%= rutaActual === "/consulta" ? 'aria-current="page"' : "" %>><%= t("nav.consultaLugar") %></a>
+          <a href="/monitor" <%= rutaActual === "/monitor" ? 'aria-current="page"' : "" %>><%= t("nav.monitorHumedad") %></a>
+          <a href="/siembras" <%= rutaActual === "/siembras" ? 'aria-current="page"' : "" %>><%= t("nav.siembrasPeru") %></a>
+          <a href="/sobre" <%= rutaActual === "/sobre" ? 'aria-current="page"' : "" %>><%= t("nav.sobreProyecto") %></a>
+        </div>
+        <div class="nav-publica__acciones">
+          <%- include("../partials/idioma") %>
+          <% if (usuario) { %>
+            <a class="boton boton--secundario boton-pequeno" href="/notificaciones" data-notificaciones aria-label="<%= t("nav.notificaciones") %>">
+              <span aria-hidden="true"><%- include("../iconos/alerta") %></span>
+              <span class="nav-publica__texto"><%= t("nav.notificaciones") %></span>
+              <span data-notificaciones-count hidden></span>
+            </a>
+            <a class="boton" href="/panel"><%= t("nav.miPanel") %></a>
+            <a class="avatar-panel" href="/perfil" aria-label="<%= t('nav.perfilDe', { nombre: usuario.nombre }) %>" title="<%= t('panel.nav.profile') %>"><span class="avatar-panel__texto"><%= inicialPublico %></span></a>
+          <% } else { %>
+            <a class="boton boton--secundario" href="/ingresar"><%= t("nav.ingresar") %></a>
+          <% } %>
+          <button class="boton-icono boton-tema" type="button" data-accion="tema" aria-label="<%= t("nav.cambiarTema") %>" aria-pressed="false">
+            <span class="icono-luna"><%- include("../iconos/luna") %></span>
+            <span class="icono-sol"><%- include("../iconos/sol") %></span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+</div>

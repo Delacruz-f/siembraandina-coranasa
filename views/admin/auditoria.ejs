@@ -1,0 +1,97 @@
+<%- include('../partials/head', { titulo: 'Auditoría' }) %>
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Control del sistema</p>
+    <h1>Auditoría</h1>
+    <p>Consulta y filtra la actividad registrada en la plataforma.</p>
+  </div>
+</section>
+<h2>Registros</h2>
+<form method="get" action="/admin/auditoria" class="formulario en-fila">
+  <label>Buscar<input name="q" value="<%= filtros.busqueda %>" maxlength="120"></label>
+  <label>Acción<input name="accion" value="<%= filtros.accion %>" maxlength="80"></label>
+  <label>Entidad<input name="entidad" value="<%= filtros.entidad %>" maxlength="80"></label>
+  <label>Desde<input name="desde" type="date" value="<%= filtros.desde %>"></label>
+  <label>Hasta<input name="hasta" type="date" value="<%= filtros.hastaOriginal %>"></label>
+  <label>Ordenar por<select name="orden">
+    <% [['fecha','Fecha'],['usuario','Usuario'],['accion','Acción'],['entidad','Entidad']].forEach(([valor,nombre]) => { %>
+      <option value="<%= valor %>" <%= filtros.orden === valor ? 'selected' : '' %>><%= nombre %></option>
+    <% }) %>
+  </select></label>
+  <label>Dirección<select name="direccion"><option value="desc" <%= filtros.direccion === 'desc' ? 'selected' : '' %>>Descendente</option><option value="asc" <%= filtros.direccion === 'asc' ? 'selected' : '' %>>Ascendente</option></select></label>
+  <button class="boton" type="submit">Filtrar</button>
+  <a class="boton boton-secundario" href="/admin/auditoria/exportar.csv?q=<%= encodeURIComponent(filtros.busqueda) %>&accion=<%= encodeURIComponent(filtros.accion) %>&entidad=<%= encodeURIComponent(filtros.entidad) %>&desde=<%= filtros.desde %>&hasta=<%= filtros.hastaOriginal %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>">Exportar CSV</a>
+</form>
+<p class="tenue"><%= total %> registro(s); se muestran 20 por página.</p>
+<div class="tabla-scroll"><table>
+  <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th><th>IP</th></tr></thead>
+  <tbody><% registros.forEach((registro) => { %>
+    <tr>
+      <td><%= fechaHora(registro.fecha) %></td>
+      <td><%= registro.usuario_nombre || 'Sistema' %></td>
+      <td><%= registro.accion %></td>
+      <td><%= registro.entidad %><%= registro.entidad_id ? ` #${registro.entidad_id}` : '' %></td>
+      <td class="detalle">
+        <% 
+          let objDetalle = null;
+          let esJson = false;
+          if (registro.detalle) {
+            if (typeof registro.detalle === 'object') {
+              objDetalle = registro.detalle;
+              esJson = true;
+            } else if (typeof registro.detalle === 'string') {
+              try {
+                objDetalle = JSON.parse(registro.detalle);
+                esJson = typeof objDetalle === 'object' && objDetalle !== null;
+              } catch (_) {
+                objDetalle = registro.detalle;
+              }
+            }
+          }
+        %>
+        <% if (!registro.detalle || (esJson && Object.keys(objDetalle).length === 0)) { %>
+          <span class="tenue">—</span>
+        <% } else if (esJson) { %>
+          <% 
+            const claves = Object.keys(objDetalle);
+            const esSimple = claves.length <= 2 && claves.every(k => {
+              const val = objDetalle[k];
+              return typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean' || val === null;
+            });
+          %>
+          <% if (esSimple) { %>
+            <div class="detalle-chips">
+              <% claves.forEach(k => { %>
+                <span class="detalle-chip">
+                  <span class="detalle-chip__clave"><%= k %>:</span>
+                  <span class="detalle-chip__valor"><%= String(objDetalle[k]) %></span>
+                </span>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <details class="detalle-acordeon">
+              <summary class="detalle-acordeon__resumen">
+                <span class="detalle-acordeon__icono">ℹ️</span>
+                <span><%= objDetalle.antes && objDetalle.despues ? 'Ver cambios' : 'Ver detalle (' + claves.length + ' campos)' %></span>
+              </summary>
+              <div class="detalle-acordeon__cuerpo">
+                <pre class="detalle-acordeon__codigo"><code><%= JSON.stringify(objDetalle, null, 2) %></code></pre>
+              </div>
+            </details>
+          <% } %>
+        <% } else { %>
+          <span class="detalle-texto"><%= registro.detalle %></span>
+        <% } %>
+      </td>
+      <td><%= registro.ip || '—' %></td>
+    </tr>
+  <% }) %></tbody>
+</table></div>
+<% if (paginas > 1) { %>
+  <nav class="paginacion" aria-label="Páginas de auditoría">
+    <% if (pagina > 1) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&accion=<%= encodeURIComponent(filtros.accion) %>&entidad=<%= encodeURIComponent(filtros.entidad) %>&desde=<%= filtros.desde %>&hasta=<%= filtros.hastaOriginal %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina - 1 %>">Anterior</a><% } %>
+    <span>Página <%= pagina %> de <%= paginas %></span>
+    <% if (pagina < paginas) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&accion=<%= encodeURIComponent(filtros.accion) %>&entidad=<%= encodeURIComponent(filtros.entidad) %>&desde=<%= filtros.desde %>&hasta=<%= filtros.hastaOriginal %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina + 1 %>">Siguiente</a><% } %>
+  </nav>
+<% } %>
+<%- include('../partials/foot') %>

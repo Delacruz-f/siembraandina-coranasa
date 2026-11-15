@@ -1,0 +1,16 @@
+<%- include('partials/head', { titulo: 'Nueva parcela' }) %>
+<section class="card narrow">
+  <h1>Nueva parcela</h1>
+  <form method="post" action="/parcelas" class="form">
+    <label>Nombre de la parcela<input name="nombre" required placeholder="Ej.: Chacra de Huaylas"></label>
+    <label>Cultivo<select name="cultivo_id" required><% cultivos.forEach(c => { %><option value="<%= c.id %>"><%= c.nombre %></option><% }) %></select></label>
+    <label>Zona de altitud<select name="zona"><% ZONAS.forEach((z, i) => { %><option value="<%= i %>" <%= i === 1 ? 'selected' : '' %>><%= z.nombre %></option><% }) %></select></label>
+    <div class="two">
+      <label>Latitud<input name="latitud" type="number" step="any" required placeholder="-13.5170"></label>
+      <label>Longitud<input name="longitud" type="number" step="any" required placeholder="-71.9785"></label>
+    </div>
+    <p class="muted">Tip: en Google Maps, mantén presionado tu chacra y copia las coordenadas.</p>
+    <button class="btn" type="submit">Guardar parcela</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

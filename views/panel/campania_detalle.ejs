@@ -1,0 +1,100 @@
+<%- include('../partials/head', { titulo: `Campaña de ${campania.cultivo}` }) %>
+
+<div class="barra-titulo">
+  <div>
+    <p class="etiqueta"><a href="/panel/parcelas/<%= campania.parcela_id %>"><%= campania.parcela %></a></p>
+    <h1>Campaña de <%= campania.cultivo %></h1>
+    <p class="tenue"><%= campania.variedad || 'Variedad no especificada' %> · <%= campania.estado %></p>
+  </div>
+  <a class="boton boton-secundario" href="/panel/campanias/<%= campania.id %>/editar">Editar campaña</a>
+</div>
+
+<section class="tarjeta">
+  <h2>Fechas previstas</h2>
+  <p>Inicio: <strong><%= fecha(campania.fecha_inicio) %></strong> · Fin: <strong><%= fecha(campania.fecha_fin) %></strong></p>
+  <% if (ventana) { %>
+    <p class="tenue">Ventana tradicional de referencia: <%= MESES_LARGOS[ventana.mes_inicio - 1] %> a <%= MESES_LARGOS[ventana.mes_fin - 1] %>. La comparación es orientativa y no reemplaza la experiencia local.</p>
+  <% } else { %>
+    <p class="aviso aviso-aviso">No hay una ventana tradicional registrada para esta combinación de cultivo y zona.</p>
+  <% } %>
+</section>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2>Registrar siembra real</h2>
+    <form method="post" action="/panel/campanias/<%= campania.id %>/siembras" class="formulario" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Fecha de siembra
+        <input type="date" name="fecha" max="<%= hoy %>" required>
+      </label>
+      <label>Método <span class="tenue">(opcional)</span>
+        <input name="metodo" maxlength="100" placeholder="Ej.: surcos">
+      </label>
+      <label>Observaciones <span class="tenue">(opcional)</span>
+        <textarea name="observaciones" maxlength="2000" rows="3"></textarea>
+      </label>
+      <button class="boton" type="submit">Guardar siembra</button>
+    </form>
+  </section>
+  <section class="tarjeta">
+    <h2>Registrar cosecha</h2>
+    <form method="post" action="/panel/campanias/<%= campania.id %>/cosechas" class="formulario" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Fecha de cosecha
+        <input type="date" name="fecha" max="<%= hoy %>" required>
+      </label>
+      <label>Cantidad
+        <input type="number" name="cantidad" min="0.001" step="0.001" required>
+      </label>
+      <label>Unidad
+        <select name="unidad_id" required>
+          <option value="">Elige una unidad</option>
+          <% unidades.forEach((unidad) => { %>
+            <option value="<%= unidad.id %>"><%= unidad.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Observaciones <span class="tenue">(opcional)</span>
+        <textarea name="observaciones" maxlength="2000" rows="3"></textarea>
+      </label>
+      <button class="boton" type="submit">Guardar cosecha</button>
+    </form>
+  </section>
+</div>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2>Siembras reales</h2>
+    <% if (!siembras.length) { %>
+      <p class="estado-vacio">Todavía no registras siembras reales.</p>
+    <% } else { %>
+      <ul class="lista-registros">
+        <% siembras.forEach((siembra) => { %>
+          <li>
+            <strong><%= fecha(siembra.fecha) %></strong>
+            <% if (siembra.metodo) { %><span> · <%= siembra.metodo %></span><% } %>
+            <p><%= siembra.comparacion.texto %></p>
+            <% if (siembra.observaciones) { %><p class="tenue"><%= siembra.observaciones %></p><% } %>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+  <section class="tarjeta">
+    <h2>Cosechas registradas</h2>
+    <% if (!cosechas.length) { %>
+      <p class="estado-vacio">Todavía no registras cosechas.</p>
+    <% } else { %>
+      <ul class="lista-registros">
+        <% cosechas.forEach((cosecha) => { %>
+          <li>
+            <strong><%= fecha(cosecha.fecha) %></strong> · <%= Number(cosecha.cantidad) %> <%= cosecha.unidad %>
+            <% if (cosecha.observaciones) { %><p class="tenue"><%= cosecha.observaciones %></p><% } %>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,164 @@
+<%- include('../partials/head', { titulo: parcela ? t("parcela.tituloEditar") : t("parcela.tituloNueva") }) %>
+
+<section class="tarjeta estrecha formulario-parcela">
+  <h1><%= parcela ? t("parcela.tituloEditar") : t("parcela.tituloNueva") %></h1>
+  <form method="post" action="<%= parcela ? '/panel/parcelas/' + parcela.id : '/panel/parcelas' %>" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label><%= t("parcela.nombre") %>
+      <input name="nombre" required minlength="3" maxlength="120" value="<%= parcela ? parcela.nombre : '' %>" placeholder="<%= t('parcela.ejemploNombre') %>">
+    </label>
+    <% if (parcela) { %>
+      <input type="hidden" name="cultivo_id" value="<%= parcela.cultivo_id %>">
+      <p class="tenue"><%= t("parcela.cultivoPrimeraCampana", { cultivo: parcela.cultivo }) %></p>
+    <% } else { %>
+      <label><%= t("parcela.productoCosechar") %>
+        <select name="cultivo_id" required>
+          <% cultivos.forEach(function (c) { %>
+            <option value="<%= c.id %>"><%= c.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+    <% } %>
+    <fieldset class="formulario">
+      <legend><%= t("parcela.ubicacion") %></legend>
+      <label><%= t("parcela.departamento") %>
+        <select id="parcela-departamento" required>
+          <option value=""><%= t("parcela.elegirDepartamento") %></option>
+          <% departamentos.forEach((opcion) => { %>
+            <option value="<%= opcion.id %>" <%= departamento && departamento.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label><%= t("parcela.provincia") %>
+        <select id="parcela-provincia" required>
+          <option value=""><%= t("parcela.elegirProvincia") %></option>
+          <% provincias.forEach((opcion) => { %>
+            <option value="<%= opcion.id %>" data-departamento-id="<%= opcion.departamento_id %>" <%= provincia && provincia.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label><%= t("parcela.distrito") %>
+        <select id="parcela-distrito" name="distrito_id" required>
+          <option value=""><%= t("parcela.elegirDistrito") %></option>
+          <% distritos.forEach((opcion) => { %>
+            <option value="<%= opcion.id %>" data-provincia-id="<%= opcion.provincia_id %>" <%= distrito && distrito.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+    </fieldset>
+    <p class="tenue">
+      <%= t("parcela.dudaCultivo") %>
+      <a href="/panel/consultas/nueva"><%= t("parcela.consultarTecnico") %></a>
+    </p>
+    <h2><%= t("parcela.pasoUbicacion") %></h2>
+    <p class="tenue"><%= t("parcela.ubicacionAyuda") %></p>
+    <button class="boton boton-secundario" id="usar-ubicacion" type="button"><%= t("parcela.usarUbicacion") %></button>
+    <p
+      id="estado-ubicacion"
+      class="tenue"
+      role="status"
+      aria-live="polite"
+      data-solicitando="<%= t('parcela.ubicacionSolicitando') %>"
+      data-seleccionada="<%= t('parcela.ubicacionSeleccionada') %>"
+      data-permiso-denegado="<%= t('parcela.ubicacionPermisoDenegado') %>"
+      data-no-disponible="<%= t('parcela.ubicacionNoDisponible') %>"
+      data-tiempo-agotado="<%= t('parcela.ubicacionTiempoAgotado') %>"
+      data-no-soportada="<%= t('parcela.ubicacionNoSoportada') %>"
+      data-error-cargar-ubicacion="<%= t('parcela.errorCargarUbicacion') %>"
+    ></p>
+    <div
+      id="mapa-parcela"
+      class="mapa-parcela"
+      data-latitud="<%= parcela ? Number(parcela.latitud) : '' %>"
+      data-longitud="<%= parcela ? Number(parcela.longitud) : '' %>"
+      role="region"
+      tabindex="0"
+      aria-label="<%= t('parcela.mapaAyuda') %>"
+    ></div>
+    <h2><%= t("parcela.pasoTerreno") %></h2>
+    <p class="tenue"><%= t("parcela.ayudaZoom") %></p>
+    <div class="mapa-parcela__herramientas" role="group" aria-label="<%= t('parcela.controlesMapa') %>">
+      <button
+        class="boton boton-secundario"
+        id="cambiar-capa-mapa"
+        type="button"
+        aria-pressed="true"
+        data-mostrar-calles="<%= t('parcela.mostrarCalles') %>"
+        data-mostrar-satelite="<%= t('parcela.mostrarSatelite') %>"
+      ><%= t("parcela.mostrarCalles") %></button>
+      <button
+        class="boton boton-secundario"
+        id="iniciar-trazo-terreno"
+        type="button"
+        aria-pressed="false"
+      ><%= t("parcela.dibujarTerreno") %></button>
+      <button
+        class="boton boton-secundario"
+        id="finalizar-trazo-terreno"
+        type="button"
+        disabled
+      ><%= t("parcela.finalizarTerreno") %></button>
+      <button
+        class="boton boton-secundario"
+        id="borrar-trazo-terreno"
+        type="button"
+        disabled
+      ><%= t("parcela.borrarTrazo") %></button>
+    </div>
+    <p
+      id="estado-trazo-terreno"
+      class="tenue"
+      role="status"
+      aria-live="polite"
+      data-dibujando="<%= t('parcela.estadoDibujando') %>"
+      data-pocos-puntos="<%= t('parcela.estadoPocosPuntos') %>"
+      data-area-calculada="<%= t('parcela.estadoAreaCalculada') %>"
+      data-area-invalida="<%= t('parcela.estadoAreaInvalida') %>"
+      data-limpiar="<%= t('parcela.estadoTrazoBorrado') %>"
+    ></p>
+    <p class="tenue"><%= t("parcela.mapaInstruccion") %></p>
+    <p class="tenue"><%= t("parcela.datosAutoInfo") %></p>
+    <p class="tenue"><%= t("parcela.limiteInfo") %></p>
+    <div class="dos-columnas">
+      <label><%= t("parcela.latitud") %>
+        <input name="latitud" type="number" step="any" min="-90" max="90" required value="<%= parcela ? Number(parcela.latitud) : '' %>" placeholder="<%= t('parcela.ejemploLatitud') %>">
+      </label>
+      <label><%= t("parcela.longitud") %>
+        <input name="longitud" type="number" step="any" min="-180" max="180" required value="<%= parcela ? Number(parcela.longitud) : '' %>" placeholder="<%= t('parcela.ejemploLongitud') %>">
+      </label>
+    </div>
+    <div class="dos-columnas">
+      <label><%= t("parcela.altitud") %>
+        <input id="parcela-altitud" name="altitud_m" type="number" step="1" min="0" max="6000" value="<%= parcela && parcela.altitud_m !== null ? Number(parcela.altitud_m) : '' %>">
+      </label>
+      <label><%= t("parcela.area") %>
+        <input id="parcela-area" name="area_hectareas" type="number" step="0.01" min="0" max="10000" value="<%= parcela && parcela.area_hectareas !== null ? Number(parcela.area_hectareas) : '' %>">
+      </label>
+    </div>
+    <label><%= t("parcela.zonaAltitudinal") %>
+      <select id="parcela-zona" name="zona_id" required>
+        <% zonas.forEach(function (z) { %>
+          <option value="<%= z.id %>" data-min="<%= z.altitud_min_m %>" data-max="<%= z.altitud_max_m %>" <%= parcela ? parcela.zona_id === z.id : z.clave === 'quechua' ? 'selected' : '' %>><%= z.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <button class="boton boton-secundario" id="estimar-altitud" type="button"><%= t("parcela.estimarAltitud") %></button>
+    <p
+      id="estado-altitud"
+      class="tenue"
+      role="status"
+      aria-live="polite"
+      data-falta-coordenadas="<%= t('parcela.altitudFaltaCoordenadas') %>"
+      data-consultando="<%= t('parcela.altitudConsultando') %>"
+      data-actualizada="<%= t('parcela.altitudActualizada') %>"
+      data-error="<%= t('parcela.altitudError') %>"
+      data-zona-sugerida="<%= t('parcela.zonaSugerida') %>"
+    ></p>
+    <label><%= t("parcela.notas") %>
+      <textarea name="notas" rows="3" maxlength="1000"><%= parcela && parcela.notas ? parcela.notas : '' %></textarea>
+    </label>
+    <button class="boton" type="submit"><%= parcela ? t("parcela.guardarCambios") : t("parcela.crear") %></button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

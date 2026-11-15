@@ -1,0 +1,31 @@
+<%- include('../partials/head', { titulo: 'Crear cuenta' }) %>
+
+<section class="tarjeta estrecha">
+  <p class="etiqueta">Únete a la comunidad</p>
+  <h1>Crea tu cuenta</h1>
+  <p class="tenue">Toda cuenta nueva es de <strong>agricultor</strong>. Si eres técnico, podrás solicitarlo después desde tu perfil.</p>
+  <form method="post" action="/registro" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Nombre completo
+      <input name="nombre" required minlength="3" maxlength="120" autocomplete="name" value="<%= valores.nombre || '' %>">
+    </label>
+    <label>Correo electrónico
+      <input type="email" name="email" required autocomplete="email" value="<%= valores.email || '' %>">
+    </label>
+    <label>Contraseña (mínimo 8 caracteres)
+      <input type="password" name="password" required minlength="8" autocomplete="new-password">
+    </label>
+    <div class="dos-columnas">
+      <label>Teléfono (opcional)
+        <input name="telefono" maxlength="30" autocomplete="tel" value="<%= valores.telefono || '' %>">
+      </label>
+      <label>Comunidad (opcional)
+        <input name="comunidad" maxlength="120" value="<%= valores.comunidad || '' %>">
+      </label>
+    </div>
+    <button class="boton" type="submit">Crear cuenta</button>
+  </form>
+  <p class="tenue">¿Ya tienes cuenta? <a href="/ingresar">Ingresa</a></p>
+</section>
+
+<%- include('../partials/foot') %>

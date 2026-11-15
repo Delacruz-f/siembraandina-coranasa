@@ -1,0 +1,45 @@
+<%- include('../partials/head', { titulo: campania ? 'Editar campaña' : 'Nueva campaña' }) %>
+
+<section class="tarjeta estrecha">
+  <p class="etiqueta"><a href="/panel/parcelas/<%= parcela.id %>"><%= parcela.nombre %></a></p>
+  <h1><%= campania ? 'Editar campaña' : 'Nueva campaña' %></h1>
+  <form
+    method="post"
+    action="<%= campania ? '/panel/campanias/' + campania.id : '/panel/parcelas/' + parcela.id + '/campanias' %>"
+    class="formulario"
+    novalidate
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label for="campania-cultivo">Cultivo</label>
+    <select id="campania-cultivo" name="cultivo_id" required>
+      <% cultivos.forEach((cultivo) => { %>
+        <option value="<%= cultivo.id %>" <%= campania ? campania.cultivo_id === cultivo.id : parcela.cultivo_id === cultivo.id ? 'selected' : '' %>><%= cultivo.nombre %></option>
+      <% }) %>
+    </select>
+    <label for="campania-variedad">Variedad <span class="tenue">(opcional)</span></label>
+    <select id="campania-variedad" name="variedad_id">
+      <option value="">Sin variedad definida</option>
+      <% variedades.forEach((variedad) => { %>
+        <option value="<%= variedad.id %>" <%= campania && campania.variedad_id === variedad.id ? 'selected' : '' %>><%= variedad.nombre %></option>
+      <% }) %>
+    </select>
+    <label for="campania-estado">Estado</label>
+    <select id="campania-estado" name="estado_id" required>
+      <% estados.forEach((estado) => { %>
+        <option value="<%= estado.id %>" <%= campania ? campania.estado_id === estado.id : estado.clave === 'planificada' ? 'selected' : '' %>><%= estado.nombre %></option>
+      <% }) %>
+    </select>
+    <div class="dos-columnas">
+      <label>Inicio previsto
+        <input type="date" name="fecha_inicio" value="<%= campania && campania.fecha_inicio ? String(campania.fecha_inicio).slice(0, 10) : '' %>">
+      </label>
+      <label>Fin previsto
+        <input type="date" name="fecha_fin" value="<%= campania && campania.fecha_fin ? String(campania.fecha_fin).slice(0, 10) : '' %>">
+      </label>
+    </div>
+    <button class="boton" type="submit"><%= campania ? 'Guardar campaña' : 'Crear campaña' %></button>
+  </form>
+</section>
+
+<script src="/js/campanias.js" defer></script>
+<%- include('../partials/foot') %>

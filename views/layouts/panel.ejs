@@ -1,0 +1,116 @@
+<%
+  const etiquetasRol = {
+    agricultor: t("panel.rol.agricultor"),
+    tecnico: t("panel.rol.tecnico"),
+    editor: t("panel.rol.editor"),
+    administrador: t("panel.rol.administrador"),
+  };
+  const inicialUsuario = (usuario && usuario.nombre ? usuario.nombre : "?").slice(0, 1).toUpperCase();
+  const rolesUsuario = Array.isArray(usuario.roles) ? usuario.roles : [];
+  const rutaActiva = typeof rutaLayout === "string" ? rutaLayout : "";
+  const rolDeSeccion =
+    rutaActiva.startsWith("/tecnico") && rolesUsuario.includes("tecnico") ? "tecnico" :
+    rutaActiva.startsWith("/editor") && rolesUsuario.includes("editor") ? "editor" :
+    rutaActiva.startsWith("/admin") && rolesUsuario.includes("administrador") ? "administrador" :
+    null;
+  const rolVisible = etiquetasRol[rolDeSeccion || usuario.rol] || t("panel.rol.miembro");
+%>
+<div class="app-panel" data-sidebar="expandido">
+  <aside class="panel-lateral" id="navegacion-panel" aria-label="<%= t('nav.menu') %>">
+    <div class="panel-lateral__marca">
+      <a class="marca" href="/" aria-label="<%= t('app.nombre') %>, <%= t('nav.inicio') %>">
+        <span class="marca__icono"><%- include("../iconos/brote") %></span>
+        <span class="marca__texto"><%= t("app.nombre") %></span>
+      </a>
+      <button class="boton-icono boton-colapsar" type="button" data-accion="colapsar-menu" aria-label="<%= t('nav.contraerMenu') %>" aria-expanded="true" aria-controls="navegacion-panel">
+        <span class="icono-marco"><%- include("../iconos/menu") %></span>
+      </button>
+      <button class="boton-icono panel-lateral__cerrar" type="button" data-accion="cerrar-menu" aria-label="<%= t('nav.cerrarMenu') %>">
+        <span class="icono-marco"><%- include("../iconos/cerrar") %></span>
+      </button>
+    </div>
+
+    <div class="perfil-lateral">
+      <span class="avatar" aria-hidden="true"><%= inicialUsuario %></span>
+      <div class="perfil-lateral__datos">
+        <span class="perfil-lateral__nombre"><%= usuario.nombre %></span>
+        <span class="perfil-lateral__correo"><%= usuario.email %></span>
+        <span class="perfil-lateral__rol"><%= rolVisible %></span>
+      </div>
+    </div>
+
+    <p class="panel-lateral__seccion"><%= t("nav.menu") %></p>
+    <nav class="nav-panel" aria-label="<%= t('nav.secciones') %>">
+      <% enlacesPanel.forEach((enlace) => { const activo = rutaLayout === enlace.href || rutaLayout.startsWith(`${enlace.href}/`); %>
+        <a href="<%= enlace.href %>" <%= activo ? 'aria-current="page"' : "" %> title="<%= t(enlace.clave) %>">
+          <span class="nav-panel__icono" aria-hidden="true"><%- include(`../iconos/${enlace.icono}`) %></span><span class="nav-panel__texto"><%= t(enlace.clave) %></span>
+        </a>
+      <% }) %>
+    </nav>
+
+    <div class="panel-lateral__pie">
+      <%- include("../partials/idioma") %>
+      <div class="tema-panel">
+        <span class="tema-panel__titulo"><%= t("panel.tema") %></span>
+        <button class="tema-segmentado" type="button" data-accion="tema" aria-label="<%= t('panel.cambiarTema') %>" aria-pressed="false">
+          <span class="tema-segmentado__opcion tema-segmentado__opcion--claro">
+            <span class="icono-sol"><%- include("../iconos/sol") %></span>
+            <span class="tema-panel__texto"><%= t("panel.claro") %></span>
+          </span>
+          <span class="tema-segmentado__opcion tema-segmentado__opcion--oscuro">
+            <span class="icono-luna"><%- include("../iconos/luna") %></span>
+            <span class="tema-panel__texto"><%= t("panel.oscuro") %></span>
+          </span>
+        </button>
+      </div>
+      <form method="post" action="/salir" class="en-linea">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="panel-lateral__salir" type="submit" title="<%= t('panel.cerrarSesion') %>">
+          <%- include("../iconos/salir") %><span class="panel-lateral__salir-texto"><%= t("panel.cerrarSesion") %></span>
+        </button>
+      </form>
+    </div>
+  </aside>
+  <button class="velo-panel" type="button" data-accion="cerrar-menu" aria-label="<%= t('nav.cerrarMenu') %>" tabindex="-1"></button>
+
+  <div class="panel-cuerpo">
+    <header class="barra-superior">
+      <span class="barra-superior__inicio">
+        <button class="boton-icono boton-colapsar" type="button" data-accion="colapsar-menu" data-menu-panel aria-label="<%= t('nav.abrirMenu') %>" aria-expanded="false" aria-controls="navegacion-panel">
+          <span class="icono-marco"><%- include("../iconos/menu") %></span>
+        </button>
+      </span>
+      <p class="barra-superior__titulo"><%= typeof titulo !== "undefined" && titulo ? titulo : t("panel.miEspacio") %></p>
+      <form class="buscador-panel" action="/saberes" method="get" role="search">
+        <span aria-hidden="true"><%- include("../iconos/buscar") %></span>
+        <input type="search" name="q" placeholder="<%= t('nav.buscarPlaceholder') %>" aria-label="<%= t('nav.buscar') %>" maxlength="120">
+      </form>
+      <div class="barra-superior__acciones">
+        <a class="boton-icono" href="/notificaciones" data-notificaciones aria-label="<%= t('notificaciones.titulo') %>" title="<%= t('notificaciones.titulo') %>">
+          <span class="icono-marco"><%- include("../iconos/alerta") %></span><span data-notificaciones-count hidden></span>
+        </a>
+        <a class="avatar-panel" href="/perfil" aria-label="<%= t('nav.perfilDe', { nombre: usuario.nombre }) %>" title="<%= t('panel.nav.profile') %>"><span class="avatar-panel__texto"><%= inicialUsuario %></span></a>
+        <button class="boton-icono boton-tema" type="button" data-accion="tema" aria-label="<%= t('panel.cambiarTema') %>" aria-pressed="false">
+          <span class="icono-marco"><span class="icono-luna"><%- include("../iconos/luna") %></span></span>
+          <span class="icono-marco"><span class="icono-sol"><%- include("../iconos/sol") %></span></span>
+        </button>
+        <form method="post" action="/salir" class="en-linea">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="boton-icono" type="submit" aria-label="<%= t('panel.cerrarSesion') %>" title="<%= t('panel.cerrarSesion') %>">
+            <span class="icono-marco"><%- include("../iconos/salir") %></span>
+          </button>
+        </form>
+      </div>
+    </header>
+    <% if (usuario && !usuario.correoVerificado && !usuario.email_verificado_en && !(typeof ocultarAvisoVerificacion !== 'undefined' && ocultarAvisoVerificacion)) { %>
+      <div class="aviso-verificacion" role="status">
+        <span><%= t("panel.verificarCorreoAviso") %></span>
+        <span class="u-flex u-flex--wrap">
+          <a class="boton boton-secundario boton-pequeno" href="/perfil#verificacion-correo"><%= t("panel.verificarAhora") %></a>
+          <form method="post" action="/perfil/verificacion/ocultar-aviso" class="en-linea u-mt-0">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="enlace" type="submit" aria-label="<%= t('panel.ocultarAviso') %>"><%= t("panel.ocultar") %></button>
+          </form>
+        </span>
+      </div>
+    <% } %>

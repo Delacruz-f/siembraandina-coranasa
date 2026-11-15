@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+
+<p class="etiqueta">Catálogos · Cultivos</p>
+<h1>Imágenes de <%= cultivo.nombre %></h1>
+<p class="tenue">Las imágenes del catálogo son públicas. Autor y licencia son obligatorios; al guardarlas se eliminan los metadatos y la ubicación GPS.</p>
+
+<form
+  method="post"
+  action="/admin/cultivos/<%= cultivo.id %>/imagenes"
+  enctype="multipart/form-data"
+  class="formulario tarjeta"
+>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label for="imagenes-cultivo">Imágenes JPG, PNG o WEBP (hasta 5, máximo 10 MB cada una)
+    <input id="imagenes-cultivo" type="file" name="imagenes" accept="image/jpeg,image/png,image/webp" multiple required>
+  </label>
+  <label for="textos_alternativos">Textos alternativos, uno por imagen
+    <small class="tenue">Separa cada descripción con un punto y coma (;).</small>
+    <textarea id="textos_alternativos" name="textos_alternativos" rows="3" maxlength="1280" required></textarea>
+  </label>
+  <label for="autor_imagen">Autor de las imágenes
+    <input id="autor_imagen" name="autor_imagen" maxlength="160" required>
+  </label>
+  <label for="autor_url">Enlace del autor (opcional)
+    <input id="autor_url" name="autor_url" type="url" maxlength="255">
+  </label>
+  <label for="licencia">Licencia
+    <input id="licencia" name="licencia" maxlength="160" required list="licencias-cultivo" placeholder="Ej.: CC BY-SA 4.0">
+    <datalist id="licencias-cultivo">
+      <option value="CC BY 4.0"></option>
+      <option value="CC BY-SA 4.0"></option>
+      <option value="CC BY-NC 4.0"></option>
+      <option value="Dominio público"></option>
+      <option value="Uso autorizado por el autor"></option>
+    </datalist>
+  </label>
+  <label for="licencia_url">Enlace de la licencia (opcional)
+    <input id="licencia_url" name="licencia_url" type="url" maxlength="255">
+  </label>
+  <button class="boton" type="submit">Subir imágenes</button>
+</form>
+
+<section class="tarjeta" aria-labelledby="titulo-galeria-cultivo-admin">
+  <h2 id="titulo-galeria-cultivo-admin">Imágenes publicadas</h2>
+  <% if (imagenes.length) { %>
+    <%- include('../partials/galeria', { imagenes, titulo: `Imágenes de ${cultivo.nombre}`, mostrarAtribucion: true }) %>
+    <ul class="lista-tarjetas u-mt-4">
+      <% imagenes.forEach((imagen) => { %>
+        <li class="tarjeta">
+          <p><strong><%= imagen.alt %></strong></p>
+          <p class="tenue">
+            <%= imagen.autor || "Sin autor" %>
+            <% if (imagen.licencia) { %> · <%= imagen.licencia %><% } %>
+            <% if (imagen.bajaResolucion) { %> · Imagen de baja resolución<% } %>
+          </p>
+          <form method="post" action="/admin/cultivos/<%= cultivo.id %>/imagenes/<%= imagen.id %>/eliminar">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="enlace peligro" type="submit">Eliminar del cultivo</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p class="tenue">Este cultivo todavía no tiene imágenes.</p>
+  <% } %>
+</section>
+
+<p><a class="boton boton-secundario" href="/cultivos/<%= encodeURIComponent(cultivo.slug) %>">Ver ficha pública</a></p>
+
+<%- include('../partials/foot') %>

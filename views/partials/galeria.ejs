@@ -1,0 +1,39 @@
+<%
+  // Galería con lightbox accesible.
+  // Variables:
+  //  imagenes -> lista de imagenesServicio.describe()
+  //  titulo   -> título de la galería (opcional)
+  //  mostrarAtribucion -> muestra autor y licencia en el pie del lightbox
+  const listaGaleria = Array.isArray(imagenes) ? imagenes : [];
+  const tituloGaleria = typeof titulo !== "undefined" && titulo ? titulo : "Galería de imágenes";
+  const atribucionGaleria = typeof mostrarAtribucion !== "undefined" && mostrarAtribucion;
+%>
+<% if (listaGaleria.length) { %>
+<div class="galeria">
+  <% listaGaleria.forEach((imagen, indice) => { %>
+    <% const grande = imagen.variantes.length ? imagen.variantes[imagen.variantes.length - 1] : null; %>
+    <button
+      type="button"
+      class="galeria__elemento"
+      data-lightbox-item
+      data-lightbox-index="<%= indice %>"
+      data-src="<%= grande ? grande.webp : '' %>"
+      data-alt="<%= imagen.alt %>"
+      aria-label="Ampliar imagen: <%= imagen.alt %>"
+    >
+      <%- include("imagen", { imagen, sizes: "(min-width: 900px) 33vw, (min-width: 600px) 50vw, 100vw", clase: "galeria__img", mostrarAtribucion: false }) %>
+    </button>
+  <% }) %>
+</div>
+
+<div class="lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="<%= tituloGaleria %>">
+  <div class="lightbox__contenido">
+    <button type="button" class="lightbox__cerrar" data-lightbox-cerrar aria-label="Cerrar visor">×</button>
+    <button type="button" class="lightbox__anterior" data-lightbox-anterior aria-label="Imagen anterior">‹</button>
+    <img class="lightbox__imagen" data-lightbox-imagen alt="">
+    <button type="button" class="lightbox__siguiente" data-lightbox-siguiente aria-label="Imagen siguiente">›</button>
+    <p class="lightbox__pie" data-lightbox-pie aria-live="polite"></p>
+    <p class="lightbox__contador" data-lightbox-contador aria-live="polite"></p>
+  </div>
+</div>
+<% } %>

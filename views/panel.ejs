@@ -1,0 +1,19 @@
+<%- include('partials/head', { titulo: 'Mis parcelas' }) %>
+<div class="bar-title"><h1>Mis parcelas</h1><a class="btn" href="/parcelas/nueva">Nueva parcela</a></div>
+<% if (!parcelas.length) { %>
+<section class="card empty"><h2>Aún no tienes parcelas</h2><p class="muted">Crea tu primera parcela para saber cuándo sembrar.</p><a class="btn" href="/parcelas/nueva">Crear parcela</a></section>
+<% } else { %>
+<div class="grid">
+<% parcelas.forEach(p => { %>
+  <a class="card parcel <%= p.v.cls %>" href="/parcelas/<%= p.id %>">
+    <span class="badge <%= p.v.cls %>"><%= p.v.titulo %></span>
+    <h2><%= p.nombre %></h2>
+    <p class="muted"><%= p.cultivo %> · <%= ZONAS[p.zona].nombre %></p>
+    <% if (p.lectura) { %>
+    <dl class="kv"><div><dt>Humedad</dt><dd><%= Number(p.lectura.humedad) %> %</dd></div><div><dt>Temp. suelo</dt><dd><%= Number(p.lectura.temperatura) %> °C</dd></div></dl>
+    <% } else { %><p class="muted">Sin lecturas todavía</p><% } %>
+  </a>
+<% }) %>
+</div>
+<% } %>
+<%- include('partials/foot') %>

@@ -1,0 +1,36 @@
+<%- include('../partials/head') %>
+
+<div class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Comunidad</p>
+    <h1>Mis consultas</h1>
+    <p>Pregunta a un técnico que atiende tu distrito.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/panel/consultas/nueva">Hacer una consulta</a>
+  </div>
+</div>
+
+<% if (consultas.length) { %>
+  <div class="rejilla">
+    <% consultas.forEach((consulta) => { %>
+      <article class="tarjeta">
+        <p class="etiqueta"><%= consulta.estado %> · <%= consulta.distrito %>, <%= consulta.departamento %></p>
+        <h2><a href="/panel/consultas/<%= consulta.id %>"><%= consulta.titulo %></a></h2>
+        <p><%= consulta.contenido %></p>
+        <% if (consulta.respuesta) { %>
+          <p class="tenue">Respondida por <%= consulta.tecnico || "un técnico" %>.</p>
+        <% } %>
+        <p class="tenue">Enviada: <%= fechaHora(consulta.created_at) %></p>
+      </article>
+    <% }) %>
+  </div>
+<% } else { %>
+  <section class="tarjeta estado-vacio">
+    <h2>Aún no has enviado consultas</h2>
+    <p>Incluye el distrito, el cultivo y los detalles que ayuden al técnico a orientarte.</p>
+    <a class="boton" href="/panel/consultas/nueva">Hacer una consulta</a>
+  </section>
+<% } %>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,52 @@
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.u-flex {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+}
+
+.u-flex--entre {
+  justify-content: space-between;
+}
+
+.u-grid {
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+.u-mt-0 { margin-top: 0; }
+.u-mt-2 { margin-top: var(--espacio-2); }
+.u-mt-3 { margin-top: var(--espacio-3); }
+.u-flex--wrap { flex-wrap: wrap; }
+.u-mt-4 { margin-top: var(--espacio-4); }
+.u-mb-0 { margin-bottom: 0; }
+.u-mb-4 { margin-bottom: var(--espacio-4); }
+.u-texto-centro { text-align: center; }
+.u-texto-peligro { color: var(--peligro); }
+.u-oculto { display: none; }
+.u-wrap { overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+  html body [class],
+  html body [class]::before,
+  html body [class]::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+html body.u-modo-sin-animacion [class],
+html body.u-modo-sin-animacion [class]::before,
+html body.u-modo-sin-animacion [class]::after {
+  animation: none;
+  transition: none;
+}

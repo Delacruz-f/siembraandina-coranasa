@@ -1,0 +1,122 @@
+<%- include('../partials/head') %>
+
+<div
+  class="pagina-publica siembras-publicas"
+  id="siembras-publicas"
+  data-error="<%= t('siembrasPublicas.error') %>"
+  data-cargando="<%= t('siembrasPublicas.cargando') %>"
+  data-sin-datos="<%= t('siembrasPublicas.sinDatos') %>"
+  data-atribucion-mapa="<%= t('siembrasPublicas.atribucionMapa') %>"
+  data-etiqueta-demo="<%= t('siembrasPublicas.etiquetaDemo') %>"
+  data-area-demo-a="<%= t('siembrasPublicas.areaDemoA') %>"
+  data-area-demo-b="<%= t('siembrasPublicas.areaDemoB') %>"
+  data-area-demo-c="<%= t('siembrasPublicas.areaDemoC') %>"
+  data-area-demo-d="<%= t('siembrasPublicas.areaDemoD') %>"
+  data-area-demo-e="<%= t('siembrasPublicas.areaDemoE') %>"
+  data-area-demo-f="<%= t('siembrasPublicas.areaDemoF') %>"
+  data-cultivo-papa="<%= t('siembrasPublicas.cultivoPapa') %>"
+  data-cultivo-maiz="<%= t('siembrasPublicas.cultivoMaiz') %>"
+  data-cultivo-quinua="<%= t('siembrasPublicas.cultivoQuinua') %>"
+  data-estado-sembrado="<%= t('siembrasPublicas.estadoSembrado') %>"
+  data-estado-cosechado="<%= t('siembrasPublicas.estadoCosechado') %>"
+  data-estado-mixto="<%= t('siembrasPublicas.estadoMixto') %>"
+  data-cosechadas="<%= t('siembrasPublicas.cosechadas') %>"
+  data-sembradas="<%= t('siembrasPublicas.sembradas') %>"
+>
+  <header class="siembras-publicas__cabecera">
+    <p class="siembras-publicas__etiqueta"><%= t("siembrasPublicas.etiqueta") %></p>
+    <h1><%= t("siembrasPublicas.titulo") %></h1>
+    <p><%= t("siembrasPublicas.introduccion") %></p>
+  </header>
+
+  <form class="siembras-publicas__filtros" id="siembras-filtros">
+    <label for="siembras-cultivo"
+      ><%= t("siembrasPublicas.filtroCultivo") %>
+      <select id="siembras-cultivo" name="cultivo">
+        <option value=""><%= t("siembrasPublicas.todosCultivos") %></option>
+        <% cultivos.forEach((cultivo) => { %>
+        <option value="<%= cultivo.slug %>"><%= cultivo.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label for="siembras-departamento"
+      ><%= t("siembrasPublicas.filtroDepartamento") %>
+      <select id="siembras-departamento" name="departamento">
+        <option value=""><%= t("siembrasPublicas.todosDepartamentos") %></option>
+        <% departamentos.forEach((departamento) => { %>
+        <option value="<%= departamento.id %>"><%= departamento.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label for="siembras-mes"
+      ><%= t("siembrasPublicas.filtroMes") %>
+      <select id="siembras-mes" name="mes">
+        <option value=""><%= t("siembrasPublicas.todosMeses") %></option>
+        <% for (let mes = 1; mes <= 12; mes += 1) { %>
+        <option value="<%= mes %>"><%= t(`siembrasPublicas.mes.${mes}`) %></option>
+        <% } %>
+      </select>
+    </label>
+  </form>
+
+  <p id="siembras-estado" class="siembras-publicas__estado" role="status" aria-live="polite">
+    <%= t("siembrasPublicas.cargando") %>
+  </p>
+  <div class="siembras-publicas__demo" id="siembras-demo-aviso" hidden>
+    <strong><%= t("siembrasPublicas.etiquetaDemo") %></strong>
+    <span><%= t("siembrasPublicas.avisoDemo") %></span>
+  </div>
+  <div class="siembras-publicas__layout">
+    <section class="siembras-publicas__mapa-panel" aria-labelledby="siembras-mapa-titulo">
+      <h2 id="siembras-mapa-titulo"><%= t("siembrasPublicas.mapaTitulo") %></h2>
+      <div
+        id="siembras-mapa"
+        class="siembras-publicas__mapa"
+        role="region"
+        aria-label="<%= t('siembrasPublicas.mapaAccesible') %>"
+      >
+        <p class="siembras-publicas__estado"><%= t("siembrasPublicas.cargando") %></p>
+      </div>
+      <a class="monitor-publico__desarrolladores" href="https://www.openstreetmap.org/copyright" rel="noreferrer"
+        ><%= t("siembrasPublicas.enlaceAtribucionMapa") %></a
+      >
+      <ul class="siembras-publicas__leyenda">
+        <li>
+          <span class="siembras-publicas__punto" aria-hidden="true"></span><%= t("siembrasPublicas.datosReales") %>
+        </li>
+        <li>
+          <span class="siembras-publicas__punto siembras-publicas__punto--demo" aria-hidden="true"></span><%=
+          t("siembrasPublicas.etiquetaDemo") %>
+        </li>
+      </ul>
+      <p class="siembras-publicas__privacidad"><%= t("siembrasPublicas.privacidad") %></p>
+    </section>
+    <section class="siembras-publicas__tabla-panel" aria-labelledby="siembras-tabla-titulo">
+      <h2 id="siembras-tabla-titulo"><%= t("siembrasPublicas.tablaTitulo") %></h2>
+      <div class="siembras-publicas__tabla-scroll">
+        <table class="siembras-publicas__tabla">
+          <thead>
+            <tr>
+              <th scope="col"><%= t("siembrasPublicas.colDistrito") %></th>
+              <th scope="col"><%= t("siembrasPublicas.colCultivo") %></th>
+              <th scope="col"><%= t("siembrasPublicas.colCantidad") %></th>
+              <th scope="col"><%= t("siembrasPublicas.colMediana") %></th>
+              <th scope="col"><%= t("siembrasPublicas.colRango") %></th>
+              <th scope="col"><%= t("siembrasPublicas.colEstado") %></th>
+            </tr>
+          </thead>
+          <tbody id="siembras-resultados"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <section class="siembras-publicas__invitacion">
+    <div>
+      <h2><%= t("siembrasPublicas.invitacionTitulo") %></h2>
+      <p><%= t("siembrasPublicas.invitacionTexto") %></p>
+    </div>
+    <a class="siembras-publicas__boton" href="/registro"><%= t("siembrasPublicas.invitacionBoton") %></a>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

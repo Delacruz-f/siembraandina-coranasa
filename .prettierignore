@@ -1,0 +1,11 @@
+node_modules
+coverage
+storage
+public/uploads
+package-lock.json
+.env
+.env.*
+!.env.example
+migrations
+seeds
+*.min.js

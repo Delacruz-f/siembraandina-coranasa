@@ -1,0 +1,12 @@
+<%- include('partials/head', { titulo: 'Crear cuenta' }) %>
+<section class="card narrow">
+  <h1>Crea tu cuenta</h1>
+  <form method="post" action="/registro" class="form">
+    <label>Nombre<input name="nombre" required autocomplete="name"></label>
+    <label>Correo<input type="email" name="email" required autocomplete="email"></label>
+    <label>Contraseña (mínimo 8 caracteres)<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+    <button class="btn" type="submit">Crear cuenta</button>
+  </form>
+  <p class="muted">¿Ya tienes cuenta? <a href="/login">Ingresa</a></p>
+</section>
+<%- include('partials/foot') %>

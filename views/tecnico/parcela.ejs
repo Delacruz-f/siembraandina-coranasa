@@ -1,0 +1,63 @@
+<%- include('../partials/head', { titulo: parcela.nombre }) %>
+
+<div class="barra-titulo">
+  <div>
+    <h1><%= parcela.nombre %></h1>
+    <p class="tenue"><%= parcela.cultivo %> · <%= parcela.zona_nombre %> · <%= Number(parcela.latitud) %>, <%= Number(parcela.longitud) %></p>
+  </div>
+  <a class="boton boton-secundario" href="/tecnico">Volver al panel</a>
+</div>
+
+<p class="aviso <%= acceso.puede_escribir ? 'aviso-exito' : 'aviso-aviso' %>">
+  <%= acceso.puede_escribir ? 'Tienes permiso para registrar lecturas en esta parcela.' : 'Solo lectura: el agricultor no te dio permiso de escritura.' %>
+</p>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2>Historial de lecturas</h2>
+    <% if (!lecturas.length) { %>
+      <p class="tenue">Sin lecturas todavía.</p>
+    <% } else { %>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Fecha</th><th>Humedad</th><th>Temp.</th><th>Fuente</th><th>Registró</th></tr></thead>
+          <tbody>
+            <% lecturas.forEach(function (l) { %>
+              <tr>
+                <td><%= fecha(l.fecha) %></td>
+                <td><%= Number(l.humedad) %> %</td>
+                <td><%= Number(l.temperatura) %> °C</td>
+                <td><%= l.fuente_nombre %></td>
+                <td><%= l.registrado_por_nombre || 'Automática' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <% if (acceso.puede_escribir) { %>
+    <section class="tarjeta">
+      <h2>Registrar lectura</h2>
+      <form method="post" action="/parcelas/<%= parcela.id %>/lecturas" class="formulario" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Fecha
+          <input type="date" name="fecha" value="<%= hoy %>" max="<%= hoy %>" required>
+        </label>
+        <label>Humedad del suelo (%)
+          <input type="number" name="humedad" step="0.1" min="0" max="100" required>
+        </label>
+        <label>Temperatura del suelo (°C)
+          <input type="number" name="temperatura" step="0.1" min="-30" max="60" required>
+        </label>
+        <label>Observación (opcional)
+          <input name="observacion" maxlength="500">
+        </label>
+        <button class="boton" type="submit">Guardar lectura</button>
+      </form>
+    </section>
+  <% } %>
+</div>
+
+<%- include('../partials/foot') %>

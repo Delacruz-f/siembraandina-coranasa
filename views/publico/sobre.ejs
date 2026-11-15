@@ -1,0 +1,50 @@
+<%- include('../partials/head') %>
+
+<article class="pagina-publica__articulo">
+  <header class="pagina-publica__encabezado">
+    <p class="etiqueta"><%= t("sobre.etiqueta") %></p>
+    <h1><%= t("sobre.titulo") %></h1>
+    <p class="entrada"><%= t("sobre.metaDescripcion") %></p>
+  </header>
+
+  <section class="seccion-publica" aria-labelledby="sobre-origen">
+    <h2 id="sobre-origen"><%= t("sobre.origenTitulo") %></h2>
+    <%- include("../partials/historia-equipo") %>
+  </section>
+
+  <section class="seccion-publica sobre-contacto" aria-labelledby="sobre-contacto-titulo">
+    <h2 id="sobre-contacto-titulo"><%= t("sobre.contactoTitulo") %></h2>
+    <ul class="sobre-contacto__enlaces">
+      <li>
+        <a
+          class="boton boton--secundario"
+          href="https://www.linkedin.com/in/david-delacruz-466b4644b"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="<%= t('sobre.linkedinAria') %>"
+        >
+          <%- include('../iconos/linkedin') %>
+          <span><%= t("sobre.linkedin") %></span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="boton boton--secundario"
+          href="tel:+51904436962"
+          aria-label="<%= t('sobre.telefonoAria', { telefono: t('sobre.telefono') }) %>"
+        >
+          <%- include('../iconos/telefono') %>
+          <span><%= t("sobre.telefono") %></span>
+        </a>
+      </li>
+      <li>
+        <span class="boton boton--secundario sobre-contacto__pendiente" aria-label="<%= t('sobre.githubAria') %>">
+          <%- include('../iconos/github') %>
+          <span><%= t("sobre.githubPendiente") %></span>
+        </span>
+      </li>
+    </ul>
+  </section>
+</article>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,125 @@
+<%- include('../partials/head') %>
+
+<header class="pagina-publica__encabezado">
+  <p class="etiqueta"><a href="/cultivos">Cultivos</a> · Ficha referencial</p>
+  <h1><%= cultivo.nombre %></h1>
+  <p class="entrada"><%= cultivo.descripcion || "Los rangos y fechas deben revisarse con la comunidad y el equipo técnico local." %></p>
+</header>
+
+<section id="interacciones" class="seccion-publica tarjeta" aria-labelledby="titulo-interacciones">
+  <h2 id="titulo-interacciones">¿Te resulta útil este cultivo?</h2>
+  <p><%= interacciones.utiles %> lo marcaron útil · <%= interacciones.probados %> lo probaron · <%= interacciones.favoritos %> favoritos</p>
+  <% if (usuario) { %>
+    <div class="acciones">
+      <form method="post" action="/cultivos/<%= encodeURIComponent(cultivo.slug) %>/reacciones">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="tipo" value="util">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.miReaccion === 'util' %>">
+          <%= interacciones.miReaccion === 'util' ? 'Quitar: útil' : 'Me resultó útil' %>
+        </button>
+      </form>
+      <form method="post" action="/cultivos/<%= encodeURIComponent(cultivo.slug) %>/reacciones">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="tipo" value="lo_probe">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.miReaccion === 'lo_probe' %>">
+          <%= interacciones.miReaccion === 'lo_probe' ? 'Quitar: lo probé' : 'Lo probé' %>
+        </button>
+      </form>
+      <form method="post" action="/cultivos/<%= encodeURIComponent(cultivo.slug) %>/favoritos">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.esFavorito %>">
+          <%= interacciones.esFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos' %>
+        </button>
+      </form>
+    </div>
+  <% } else { %>
+    <p class="aviso aviso-info"><a href="/ingresar">Ingresa</a> para reaccionar o guardar este cultivo.</p>
+  <% } %>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-galeria-cultivo">
+  <h2 id="titulo-galeria-cultivo">Galería</h2>
+  <% if (imagenes.length) { %>
+    <%- include('../partials/galeria', { imagenes, titulo: `Galería de ${cultivo.nombre}`, mostrarAtribucion: true }) %>
+  <% } else { %>
+    <p class="tenue">Aún no hay fotografías de este cultivo.</p>
+  <% } %>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-variedades">
+  <h2 id="titulo-variedades">Variedades</h2>
+  <% if (variedades.length) { %>
+    <ul class="lista-tarjetas">
+      <% variedades.forEach((variedad) => { %>
+        <li class="tarjeta">
+          <h3><%= variedad.nombre %></h3>
+          <% if (variedad.descripcion) { %><p class="tenue"><%= variedad.descripcion %></p><% } %>
+        </li>
+      <% }) %>
+    </ul>
+    <p class="nota-publica">La lista es orientativa; disponibilidad y nombres pueden variar entre comunidades.</p>
+  <% } else { %>
+    <div class="vacio"><p>Aún no hay variedades registradas para este cultivo.</p></div>
+  <% } %>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-requerimientos">
+  <h2 id="titulo-requerimientos">Requerimientos por zona</h2>
+  <% if (requerimientos.length) { %>
+    <div class="tabla-scroll" role="region" aria-label="Rangos de humedad y temperatura" tabindex="0">
+      <table>
+        <caption class="u-sr-only">Requerimientos referenciales de <%= cultivo.nombre %></caption>
+        <thead><tr><th scope="col">Zona</th><th scope="col">Humedad</th><th scope="col">Temperatura</th><th scope="col">Fuente</th></tr></thead>
+        <tbody>
+          <% requerimientos.forEach((fila) => { %>
+            <tr>
+              <th scope="row"><%= fila.zona_nombre %></th>
+              <td><%= fila.hum_min %>–<%= fila.hum_max %> %</td>
+              <td><%= fila.temp_min %>–<%= fila.temp_max %> °C</td>
+              <td><%= fila.validado ? "Validado" : "Referencial" %><% if (fila.fuente) { %>: <%= fila.fuente %><% } %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="vacio"><p>No hay rangos registrados para este cultivo.</p></div>
+  <% } %>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-calendario-cultivo">
+  <h2 id="titulo-calendario-cultivo">Calendario tradicional</h2>
+  <% if (calendario.length) { %>
+    <div class="rejilla">
+      <% calendario.forEach((fila) => { %>
+        <article class="tarjeta">
+          <p class="etiqueta"><%= fila.zona_nombre %></p>
+          <h3><%= fila.ventana.texto %></h3>
+          <p class="tenue"><%= fila.validado ? "Validado por un técnico." : "Dato referencial pendiente de validación local." %></p>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="vacio"><p>El calendario se encuentra en preparación.</p></div>
+  <% } %>
+  <a class="boton boton--secundario" href="/calendario?cultivo=<%= encodeURIComponent(cultivo.slug) %>">Consultar por ubicación</a>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-articulos-cultivo">
+  <h2 id="titulo-articulos-cultivo">Artículos relacionados</h2>
+  <% if (articulos.length) { %>
+    <div class="rejilla tarjetas-articulos">
+      <% articulos.forEach((articulo) => { %>
+        <article class="tarjeta tarjeta-articulo">
+          <p class="etiqueta"><%= articulo.categoria_nombre %></p>
+          <h3><a href="/saberes/<%= encodeURIComponent(articulo.slug) %>"><%= articulo.titulo %></a></h3>
+          <p class="tenue"><%= articulo.resumen %></p>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <p class="tenue">Todavía no hay artículos relacionados publicados.</p>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

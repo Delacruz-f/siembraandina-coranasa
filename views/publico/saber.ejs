@@ -1,0 +1,198 @@
+<%- include('../partials/head') %>
+
+<article class="articulo-publico">
+  <header class="pagina-publica__encabezado">
+    <p class="etiqueta"><a href="/saberes">Saberes</a> · <%= articulo.categoria_nombre %></p>
+    <h1><%= articulo.titulo %></h1>
+    <p class="tenue">
+      <% if (articulo.autor_nombre) { %>Por <%= articulo.autor_nombre %> · <% } %>
+      <time datetime="<%= fechaISO(articulo.publicada_en) %>"><%= fecha(articulo.publicada_en) %></time>
+    </p>
+    <% if (articulo.resumen) { %><p class="entrada"><%= articulo.resumen %></p><% } %>
+  </header>
+
+  <div class="articulo-publico__contenido">
+    <%- articulo.contenidoHtml %>
+  </div>
+
+  <% if (articulo.imagenes && articulo.imagenes.length) { %>
+    <section class="seccion-publica" aria-labelledby="titulo-galeria-articulo">
+      <h2 id="titulo-galeria-articulo">Imágenes del artículo</h2>
+      <%- include('../partials/galeria', { imagenes: articulo.imagenes, titulo: `Imágenes de ${articulo.titulo}`, mostrarAtribucion: true }) %>
+    </section>
+  <% } %>
+
+  <% if (articulo.etiquetas && articulo.etiquetas.length) { %>
+    <ul class="lista-etiquetas" aria-label="Etiquetas del artículo">
+      <% articulo.etiquetas.forEach((etiqueta) => { %>
+        <li><a href="/saberes?etiqueta=<%= encodeURIComponent(etiqueta.slug) %>"><%= etiqueta.nombre %></a></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</article>
+
+<section id="interacciones" class="seccion-publica tarjeta" aria-labelledby="titulo-interacciones">
+  <h2 id="titulo-interacciones">¿Te resultó útil?</h2>
+  <p><%= interacciones.utiles %> la marcaron útil · <%= interacciones.probados %> la probaron · <%= interacciones.favoritos %> favoritos</p>
+  <% if (usuario) { %>
+    <div class="acciones">
+      <form method="post" action="/saberes/<%= encodeURIComponent(articulo.slug) %>/reacciones">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="tipo" value="util">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.miReaccion === 'util' %>">
+          <%= interacciones.miReaccion === 'util' ? 'Quitar: útil' : 'Me resultó útil' %>
+        </button>
+      </form>
+      <form method="post" action="/saberes/<%= encodeURIComponent(articulo.slug) %>/reacciones">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="tipo" value="lo_probe">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.miReaccion === 'lo_probe' %>">
+          <%= interacciones.miReaccion === 'lo_probe' ? 'Quitar: lo probé' : 'Lo probé' %>
+        </button>
+      </form>
+      <form method="post" action="/saberes/<%= encodeURIComponent(articulo.slug) %>/favoritos">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="boton boton-secundario" type="submit" aria-pressed="<%= interacciones.esFavorito %>">
+          <%= interacciones.esFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos' %>
+        </button>
+      </form>
+    </div>
+  <% } else { %>
+    <p class="aviso aviso-info"><a href="/ingresar">Ingresa</a> para reaccionar o guardar este artículo.</p>
+  <% } %>
+</section>
+
+<section id="comentarios" class="seccion-publica" aria-labelledby="titulo-comentarios">
+  <h2 id="titulo-comentarios">Conversación</h2>
+  <% if (comentarios.length) { %>
+    <ol class="lista-comentarios">
+      <% comentarios.forEach((comentario) => { %>
+        <li class="tarjeta">
+          <p class="tarjeta-articulo__autor"><%= comentario.autor_nombre || "Comunidad" %> ·
+            <time datetime="<%= fechaISO(comentario.created_at) %>"><%= fecha(comentario.created_at) %></time>
+          </p>
+          <p><%= comentario.contenido %></p>
+          <% if (usuario && !comentario.deleted_at) { %>
+            <div class="acciones">
+              <% if (comentario.puedeEditar) { %>
+                <form method="post" action="/comentarios/<%= comentario.id %>/editar" class="formulario">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <label>Editar comentario
+                    <textarea name="contenido" rows="3" minlength="2" maxlength="3000" required><%= comentario.contenido %></textarea>
+                  </label>
+                  <button class="boton boton-secundario" type="submit">Guardar edición</button>
+                </form>
+              <% } %>
+              <% if (Number(comentario.autor_id) === Number(usuario.id)) { %>
+                <form method="post" action="/comentarios/<%= comentario.id %>/eliminar">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="enlace peligro" type="submit">Eliminar comentario</button>
+                </form>
+              <% } else { %>
+                <form method="post" action="/comentarios/<%= comentario.id %>/reportar" class="formulario">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <label>Reportar
+                    <select name="motivo" required>
+                      <option value="spam">Spam</option>
+                      <option value="ofensivo">Contenido ofensivo</option>
+                      <option value="informacion_falsa">Información posiblemente falsa</option>
+                      <option value="otro">Otro motivo</option>
+                    </select>
+                  </label>
+                  <label>Detalle (opcional)
+                    <input name="detalle" maxlength="500">
+                  </label>
+                  <button class="enlace" type="submit">Enviar reporte</button>
+                </form>
+              <% } %>
+            </div>
+          <% } %>
+          <% if (comentario.respuestas.length) { %>
+            <ol class="lista-comentarios lista-comentarios--respuestas">
+              <% comentario.respuestas.forEach((respuesta) => { %>
+                <li class="tarjeta tarjeta--hundida">
+                  <p class="tarjeta-articulo__autor"><%= respuesta.autor_nombre || "Comunidad" %> ·
+                    <time datetime="<%= fechaISO(respuesta.created_at) %>"><%= fecha(respuesta.created_at) %></time>
+                  </p>
+                  <p><%= respuesta.contenido %></p>
+                  <% if (usuario && !respuesta.deleted_at) { %>
+                    <% if (respuesta.puedeEditar) { %>
+                      <form method="post" action="/comentarios/<%= respuesta.id %>/editar" class="formulario">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <label>Editar respuesta
+                          <textarea name="contenido" rows="3" minlength="2" maxlength="3000" required><%= respuesta.contenido %></textarea>
+                        </label>
+                        <button class="boton boton-secundario" type="submit">Guardar edición</button>
+                      </form>
+                    <% } %>
+                    <% if (Number(respuesta.autor_id) === Number(usuario.id)) { %>
+                      <form method="post" action="/comentarios/<%= respuesta.id %>/eliminar">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="enlace peligro" type="submit">Eliminar respuesta</button>
+                      </form>
+                    <% } else { %>
+                      <form method="post" action="/comentarios/<%= respuesta.id %>/reportar" class="formulario">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <label>Reportar respuesta
+                          <select name="motivo" required>
+                            <option value="spam">Spam</option>
+                            <option value="ofensivo">Contenido ofensivo</option>
+                            <option value="informacion_falsa">Información posiblemente falsa</option>
+                            <option value="otro">Otro motivo</option>
+                          </select>
+                        </label>
+                        <label>Detalle (opcional)
+                          <input name="detalle" maxlength="500">
+                        </label>
+                        <button class="enlace" type="submit">Enviar reporte</button>
+                      </form>
+                    <% } %>
+                  <% } %>
+                </li>
+              <% }) %>
+            </ol>
+          <% } %>
+          <% if (usuario && !comentario.deleted_at) { %>
+            <form action="/saberes/<%= encodeURIComponent(articulo.slug) %>/comentarios" method="post" class="formulario formulario--comentario">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="comentario_padre_id" value="<%= comentario.id %>">
+              <label>Responder (un solo nivel)
+                <textarea name="contenido" rows="3" minlength="2" maxlength="3000" required></textarea>
+              </label>
+              <button class="boton boton-secundario" type="submit">Responder</button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ol>
+  <% } else { %>
+    <p class="tenue">Todavía no hay comentarios. Puedes iniciar la conversación con respeto.</p>
+  <% } %>
+  <% if (usuario) { %>
+    <form action="/saberes/<%= encodeURIComponent(articulo.slug) %>/comentarios" method="post" class="formulario formulario--comentario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label for="nuevo-comentario">Tu comentario
+        <textarea id="nuevo-comentario" name="contenido" rows="5" minlength="2" maxlength="3000" required></textarea>
+      </label>
+      <button class="boton" type="submit">Publicar comentario</button>
+    </form>
+  <% } else { %>
+    <p class="aviso aviso-info">Para escribir un comentario, <a href="/ingresar">ingresa a tu cuenta</a>.</p>
+  <% } %>
+</section>
+
+<% if (relacionados.length) { %>
+  <section class="seccion-publica" aria-labelledby="titulo-relacionados">
+    <h2 id="titulo-relacionados">También te puede interesar</h2>
+    <div class="rejilla tarjetas-articulos">
+      <% relacionados.forEach((relacionado) => { %>
+        <article class="tarjeta tarjeta-articulo">
+          <h3><a href="/saberes/<%= encodeURIComponent(relacionado.slug) %>"><%= relacionado.titulo %></a></h3>
+          <p class="tenue"><%= relacionado.resumen %></p>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+<% } %>
+
+<%- include('../partials/foot') %>

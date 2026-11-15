@@ -1,0 +1,10 @@
+<%- include('../partials/head', { titulo: 'Enlace vencido' }) %>
+
+<section class="tarjeta estrecha">
+  <h1>Este enlace ya no es válido</h1>
+  <p><%= mensaje %></p>
+  <p><a class="boton" href="/recuperar">Recuperar contraseña</a></p>
+  <p><a href="/verificacion/reenvio">Reenviar verificación de correo</a></p>
+</section>
+
+<%- include('../partials/foot') %>

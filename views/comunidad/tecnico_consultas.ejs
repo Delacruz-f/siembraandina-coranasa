@@ -1,0 +1,36 @@
+<%- include('../partials/head') %>
+
+<div class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Acompañamiento</p>
+    <h1>Consultas de mi zona</h1>
+    <p>Preguntas abiertas de los distritos donde brindas atención.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/tecnico/zonas">Administrar mis zonas</a>
+  </div>
+</div>
+
+<% if (!distritos.length) { %>
+  <p class="aviso aviso-aviso">Primero agrega distritos donde puedas atender consultas.</p>
+<% } %>
+<% if (consultas.length) { %>
+  <div class="rejilla">
+    <% consultas.forEach((consulta) => { %>
+      <article class="tarjeta">
+        <p class="etiqueta"><%= consulta.distrito %>, <%= consulta.provincia %></p>
+        <h2><a href="/tecnico/consultas/<%= consulta.id %>"><%= consulta.titulo %></a></h2>
+        <% if (consulta.cultivo) { %><p><%= consulta.cultivo %></p><% } %>
+        <p><%= consulta.contenido %></p>
+        <p class="tenue"><%= consulta.agricultor || "Agricultor" %> · <%= fechaHora(consulta.created_at) %></p>
+      </article>
+    <% }) %>
+  </div>
+<% } else { %>
+  <section class="tarjeta estado-vacio">
+    <h2>No hay consultas abiertas en tus zonas</h2>
+    <p>Cuando un agricultor envíe una pregunta para uno de tus distritos, aparecerá aquí.</p>
+  </section>
+<% } %>
+
+<%- include('../partials/foot') %>

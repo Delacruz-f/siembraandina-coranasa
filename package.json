@@ -1,0 +1,115 @@
+{
+  "name": "siembra-andina",
+  "version": "1.0.0",
+  "description": "Calendario de siembra andino con datos de suelo y clima",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run",
+    "demo": "node scripts/seed-demo.js",
+    "admin:crear": "node scripts/crear-admin.js",
+    "correo:probar": "node scripts/probar-correo.js",
+    "iconos": "node scripts/generar-iconos.js",
+    "respaldo": "docker compose exec respaldo /bin/sh /usr/local/bin/respaldo.sh una-vez",
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "test:cobertura": "cross-env NODE_ENV=test jest --runInBand --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "formato": "prettier --write \"**/*.{js,json,md,ejs,css}\"",
+    "formato:check": "prettier --check \"**/*.{js,json,md,ejs,css}\"",
+    "auditar": "npm audit --audit-level=high",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/configurarEntorno.js"
+    ],
+    "clearMocks": true,
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!htmlparser2|domhandler|domutils|domelementtype|entities)/"
+    ],
+    "collectCoverageFrom": [
+      "src/modules/**/*.service.js",
+      "src/modules/**/*.repository.js",
+      "src/engine.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text-summary",
+      "text",
+      "html",
+      "lcovonly"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 70,
+        "statements": 70,
+        "functions": 70,
+        "branches": 60
+      }
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "chart.js": "^4.6.1",
+    "compression": "^1.8.2",
+    "connect-session-knex": "^5.0.0",
+    "csrf-csrf": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.4",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.3.0",
+    "knex": "^3.1.0",
+    "leaflet": "^1.9.4",
+    "multer": "^2.5.0",
+    "mysql2": "^3.11.0",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.5.0",
+    "pg": "^8.12.0",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.2.0",
+    "sanitize-html": "^2.18.2",
+    "sharp": "^0.35.5",
+    "swagger-ui-dist": "5.34.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.1.2",
+    "@babel/preset-env": "^8.0.7",
+    "babel-jest": "^30.5.2",
+    "cross-env": "^10.1.0",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "jest": "^30.5.2",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.10.1",
+    "supertest": "^7.3.2"
+  }
+}

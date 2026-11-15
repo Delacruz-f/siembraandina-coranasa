@@ -1,0 +1,161 @@
+<section class="guia-tema" data-tema="<%= tema %>" aria-labelledby="<%= prefijo %>-titulo">
+  <div class="guia-tema__encabezado">
+    <div>
+      <p class="etiqueta"><%= tituloTema %></p>
+      <h2 id="<%= prefijo %>-titulo">Componentes</h2>
+    </div>
+    <span class="avatar" role="img" aria-label="Iniciales de Rosa Quispe">RQ</span>
+  </div>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-colores">
+    <h3 id="<%= prefijo %>-colores">Paleta</h3>
+    <div class="muestras-color">
+      <span><i class="muestra-color muestra-color--fondo"></i> Piedra <code>#E8ECE4</code></span>
+      <span><i class="muestra-color muestra-color--tinta"></i> Tinta <code>#1D2433</code></span>
+      <span><i class="muestra-color muestra-color--chacra"></i> Chacra <code>#3F6B3A</code></span>
+      <span><i class="muestra-color muestra-color--maiz"></i> Maíz <code>#D9A52B</code></span>
+      <span><i class="muestra-color muestra-color--teja"></i> Teja <code>#B4472F</code></span>
+    </div>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-botones">
+    <h3 id="<%= prefijo %>-botones">Botones</h3>
+    <div class="acciones">
+      <button class="boton" type="button">Primario</button>
+      <button class="boton boton--secundario" type="button">Secundario</button>
+      <button class="boton boton--peligro" type="button">Peligro</button>
+      <button class="boton-icono" type="button" aria-label="Agregar parcela">
+        <%- include('../iconos/mas') %>
+      </button>
+    </div>
+  </section>
+
+  <section class="rejilla" aria-label="Superficies">
+    <article class="tarjeta">
+      <h3>Tarjeta elevada</h3>
+      <p class="tenue">Superficie con sombra doble y borde visible.</p>
+    </article>
+    <article class="tarjeta tarjeta--hundida">
+      <h3>Tarjeta hundida</h3>
+      <p class="tenue">El relieve se acompaña con borde, no solo con sombra.</p>
+    </article>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-campos">
+    <h3 id="<%= prefijo %>-campos">Campos y controles</h3>
+    <form class="formulario">
+      <label for="<%= prefijo %>-nombre">Nombre de parcela
+        <input id="<%= prefijo %>-nombre" name="nombre" value="Chacra de ejemplo">
+      </label>
+      <label for="<%= prefijo %>-cultivo">Cultivo
+        <select id="<%= prefijo %>-cultivo" name="cultivo">
+          <option>Papa</option>
+          <option>Maíz</option>
+          <option>Quinua</option>
+        </select>
+      </label>
+      <label class="interruptor" for="<%= prefijo %>-alertas">
+        <input id="<%= prefijo %>-alertas" type="checkbox" role="switch" checked>
+        <span class="interruptor__pista" aria-hidden="true"></span>
+        <span>Recibir alertas</span>
+      </label>
+      <label class="casilla" for="<%= prefijo %>-confirmar">
+        <input id="<%= prefijo %>-confirmar" type="checkbox">
+        <span>Confirmo que revisé los datos</span>
+      </label>
+    </form>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-estados">
+    <h3 id="<%= prefijo %>-estados">Etiquetas y alertas</h3>
+    <div class="acciones">
+      <span class="insignia insignia-ok"><%- include('../iconos/check') %> Favorable</span>
+      <span class="insignia insignia-aviso"><%- include('../iconos/alerta') %> En observación</span>
+      <span class="insignia insignia-error"><%- include('../iconos/alerta') %> Riesgo</span>
+    </div>
+    <p class="aviso aviso-exito" role="status"><%- include('../iconos/check') %> Lectura guardada.</p>
+    <p class="aviso aviso-aviso" role="status"><%- include('../iconos/info') %> Revisa la humedad antes de sembrar.</p>
+    <p class="aviso aviso-error" role="alert"><%- include('../iconos/alerta') %> No se pudo guardar la lectura.</p>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-tabla">
+    <h3 id="<%= prefijo %>-tabla">Tabla responsive</h3>
+    <div class="tabla-scroll" role="region" aria-label="Lecturas recientes" tabindex="0">
+      <table>
+        <caption class="u-sr-only">Lecturas recientes de suelo</caption>
+        <thead>
+          <tr><th scope="col">Fecha</th><th scope="col">Humedad</th><th scope="col">Temperatura</th><th scope="col">Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">12/11/2026</th><td>32 %</td><td>14 °C</td><td><span class="insignia insignia-ok">Adecuado</span></td></tr>
+          <tr><th scope="row">11/11/2026</th><td>24 %</td><td>12 °C</td><td><span class="insignia insignia-aviso">Vigilar</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <nav class="paginacion" aria-label="Paginación de ejemplo">
+      <a href="#<%= prefijo %>-tabla" aria-label="Página anterior"><%- include('../iconos/anterior') %></a>
+      <a href="#<%= prefijo %>-tabla" aria-current="page" aria-label="Página 1">1</a>
+      <a href="#<%= prefijo %>-tabla" aria-label="Página 2">2</a>
+      <a href="#<%= prefijo %>-tabla" aria-label="Página siguiente"><%- include('../iconos/siguiente') %></a>
+    </nav>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-pestanas">
+    <h3 id="<%= prefijo %>-pestanas">Pestañas</h3>
+    <div class="pestanas" role="tablist" aria-label="Datos de cultivo">
+      <button id="<%= prefijo %>-tab-humedad" role="tab" aria-selected="true" aria-controls="<%= prefijo %>-panel-humedad">Humedad</button>
+      <button id="<%= prefijo %>-tab-temperatura" role="tab" aria-selected="false" aria-controls="<%= prefijo %>-panel-temperatura" tabindex="-1">Temperatura</button>
+    </div>
+    <div id="<%= prefijo %>-panel-humedad" role="tabpanel" aria-labelledby="<%= prefijo %>-tab-humedad">
+      <p>Rango de referencia: 25–40 %.</p>
+    </div>
+    <div id="<%= prefijo %>-panel-temperatura" role="tabpanel" aria-labelledby="<%= prefijo %>-tab-temperatura" hidden>
+      <p>Rango de referencia: 10–18 °C.</p>
+    </div>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-dialogo">
+    <h3 id="<%= prefijo %>-dialogo">Modal accesible</h3>
+    <button class="boton boton--secundario" type="button" data-dialogo-abrir="<%= prefijo %>-modal">Abrir diálogo</button>
+    <dialog class="dialogo" id="<%= prefijo %>-modal" aria-labelledby="<%= prefijo %>-modal-titulo" aria-describedby="<%= prefijo %>-modal-texto">
+      <h3 id="<%= prefijo %>-modal-titulo">Confirmar cambio</h3>
+      <p id="<%= prefijo %>-modal-texto">Esta acción actualiza la recomendación de la parcela.</p>
+      <div class="dialogo__acciones">
+        <button class="boton boton--secundario" type="button" data-dialogo-cerrar>Cancelar</button>
+        <button class="boton" type="button" data-dialogo-cerrar>Confirmar</button>
+      </div>
+    </dialog>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-progreso">
+    <h3 id="<%= prefijo %>-progreso">Progreso y avatar</h3>
+    <label class="progreso" for="<%= prefijo %>-avance">
+      <span>Campaña registrada · 65 %</span>
+      <progress id="<%= prefijo %>-avance" max="100" value="65">65 %</progress>
+    </label>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="<%= prefijo %>-ayuda">
+    <h3 id="<%= prefijo %>-ayuda">Tooltip y carga</h3>
+    <p class="tooltip">
+      <span>Humedad volumétrica</span>
+      <button class="boton-icono" type="button" aria-label="Qué significa humedad volumétrica" aria-describedby="<%= prefijo %>-tooltip">
+        <%- include('../iconos/info') %>
+      </button>
+      <span class="tooltip__contenido" role="tooltip" id="<%= prefijo %>-tooltip">Porcentaje de agua contenido en el volumen del suelo.</span>
+    </p>
+    <div aria-busy="true" aria-label="Cargando lecturas">
+      <span class="u-sr-only">Cargando lecturas...</span>
+      <div class="esqueleto esqueleto--titulo" aria-hidden="true"></div>
+      <div class="esqueleto esqueleto--texto" aria-hidden="true"></div>
+      <div class="esqueleto esqueleto--texto" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="vacio" aria-labelledby="<%= prefijo %>-vacio">
+    <span class="vacio__icono"><%- include('../iconos/mapa') %></span>
+    <h3 id="<%= prefijo %>-vacio">Aún no hay lecturas</h3>
+    <p>Registra la primera medición de suelo para recibir una recomendación de siembra.</p>
+    <button class="boton" type="button">Registrar lectura</button>
+  </section>
+</section>

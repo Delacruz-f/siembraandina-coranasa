@@ -1,0 +1,29 @@
+<%- include('../partials/head', { titulo: estadoError >= 500 ? t('error.servidor') : t('error.solicitudNoCompletada') }) %>
+
+<section class="tarjeta estrecha centrada">
+  <p class="codigo-error"><%= estadoError %></p>
+  <h1><%= estadoError >= 500 ? t("error.algoSalioMal") : t("error.solicitudNoCompletada") %></h1>
+  <p class="tenue"><%= mensaje %></p>
+  <% if (detallesFormulario.length) { %>
+    <div class="aviso aviso-error">
+      <p><%= t("error.detallesFormulario") %></p>
+      <ul>
+        <% detallesFormulario.forEach((detalle) => { %>
+          <li><%= detalle.mensaje %></li>
+        <% }) %>
+      </ul>
+    </div>
+    <p class="tenue"><%= t("error.mensajeFormulario") %></p>
+  <% } else if (estadoError >= 500) { %>
+    <p class="tenue"><%= t("error.mensajeServidor") %></p>
+  <% } %>
+  <a class="boton" href="/"><%= t("error.volver") %></a>
+  <% if (detalle) { %>
+    <details class="detalle-tecnico">
+      <summary><%= t("error.detalleTecnico") %></summary>
+      <pre><%= detalle %></pre>
+    </details>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

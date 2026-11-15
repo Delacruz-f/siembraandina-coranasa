@@ -1,0 +1,36 @@
+<%- include('partials/head', { titulo: p.nombre }) %>
+<div class="bar-title"><div><h1><%= p.nombre %></h1><p class="muted"><%= p.cultivo %> · <%= ZONAS[p.zona].nombre %> · <%= Number(p.latitud) %>, <%= Number(p.longitud) %></p></div>
+<form method="post" action="/parcelas/<%= p.id %>/sincronizar"><button class="btn" type="submit">Sincronizar con NASA</button></form></div>
+
+<section class="verdict <%= v.cls %>">
+  <h2><%= v.titulo %></h2>
+  <ul><% v.motivos.forEach(m => { %><li><%= m %></li><% }) %></ul>
+  <% if (v.hr) { %><p class="muted">Rango ideal: humedad <%= v.hr[0] %>–<%= v.hr[1] %> % · temperatura <%= v.tr[0] %>–<%= v.tr[1] %> °C</p><% } %>
+</section>
+
+<section class="card">
+  <h2>Ventana tradicional de siembra</h2>
+  <div class="months"><% MESES.forEach((m, i) => { %><span class="<%= i >= p.mes_ini && i <= p.mes_fin ? 't' : '' %> <%= i === new Date().getMonth() ? 'now' : '' %>"><%= m %></span><% }) %></div>
+  <p class="muted">El mes actual tiene borde. Si las lluvias se retrasan, los datos del suelo mandan sobre el calendario.</p>
+</section>
+
+<div class="cols">
+<section class="card">
+  <h2>Agregar lectura manual</h2>
+  <form method="post" action="/parcelas/<%= p.id %>/lecturas" class="form">
+    <label>Fecha<input type="date" name="fecha" value="<%= hoy %>" required></label>
+    <label>Humedad del suelo (%)<input type="number" name="humedad" step="0.1" min="0" max="100" required></label>
+    <label>Temperatura del suelo (°C)<input type="number" name="temperatura" step="0.1" min="-20" max="50" required></label>
+    <button class="btn" type="submit">Guardar lectura</button>
+  </form>
+</section>
+<section class="card">
+  <h2>Historial</h2>
+  <% if (!lecturas.length) { %><p class="muted">Sin lecturas. Agrega una o sincroniza con la NASA.</p><% } else { %>
+  <div class="scroll"><table><thead><tr><th>Fecha</th><th>Humedad</th><th>Temp.</th><th>Fuente</th></tr></thead><tbody>
+  <% lecturas.forEach(l => { %><tr><td><%= new Date(l.fecha).toISOString().slice(0, 10) %></td><td><%= Number(l.humedad) %> %</td><td><%= Number(l.temperatura) %> °C</td><td><%= l.fuente %></td></tr><% }) %>
+  </tbody></table></div><% } %>
+</section>
+</div>
+<form method="post" action="/parcelas/<%= p.id %>/eliminar" onsubmit="return confirm('¿Eliminar esta parcela y sus lecturas?')"><button class="btn danger" type="submit">Eliminar parcela</button></form>
+<%- include('partials/foot') %>

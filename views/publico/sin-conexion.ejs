@@ -1,0 +1,29 @@
+<%- include('../partials/head', { titulo: 'Sin conexión' }) %>
+
+<section class="seccion-publica tarjeta sin-conexion" aria-labelledby="titulo-sin-conexion">
+  <p class="etiqueta"><%= t("pwa.sinConexion") %></p>
+  <h1 id="titulo-sin-conexion"><%= t("pwa.sinConexion") %></h1>
+  <p class="entrada"><%= t("pwa.sinConexionTexto") %></p>
+
+  <div id="ultimo-calendario" data-ultimo-calendario aria-live="polite">
+    <p class="tenue"><%= t("pwa.sinCalendario") %></p>
+  </div>
+
+  <div class="acciones">
+    <a class="boton" href="/calendario"><%= t("nav.calendario") %></a>
+    <button class="boton boton-secundario" type="button" data-reintentar><%= t("pwa.reintentar") %></button>
+  </div>
+</section>
+
+<template id="plantilla-calendario">
+  <article class="tarjeta">
+    <h2><%= t("calendario.guardado") %></h2>
+    <p class="tenue" data-calendario-fecha></p>
+    <ul class="lista-tarjetas" data-calendario-lista></ul>
+    <p><a data-calendario-enlace href="/calendario"><%= t("nav.calendario") %></a></p>
+  </article>
+</template>
+
+<script src="/js/sin-conexion.js" defer></script>
+
+<%- include('../partials/foot') %>

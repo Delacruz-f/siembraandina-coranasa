@@ -1,0 +1,31 @@
+<%- include('../partials/head') %>
+
+<header class="pagina-publica__encabezado">
+  <p class="etiqueta">Catálogo</p>
+  <h1>Cultivos andinos</h1>
+  <p class="tenue">Consulta variedades y referencias; valida las prácticas en tu localidad.</p>
+</header>
+
+<% if (cultivos.length) { %>
+  <div class="rejilla tarjetas-cultivos">
+    <% cultivos.forEach((cultivo) => { %>
+      <article class="tarjeta tarjeta-cultivo">
+        <img
+          src="/img/cultivos/<%= encodeURIComponent(cultivo.slug) %>.svg"
+          alt="Ilustración botánica de <%= cultivo.nombre %>"
+          width="320"
+          height="220"
+          loading="lazy"
+        >
+        <p class="etiqueta">Cultivo de la sierra</p>
+        <h2><a href="/cultivos/<%= encodeURIComponent(cultivo.slug) %>"><%= cultivo.nombre %></a></h2>
+        <p class="tenue"><%= cultivo.resumen %></p>
+        <a class="boton boton--secundario" href="/cultivos/<%= encodeURIComponent(cultivo.slug) %>">Ver información</a>
+      </article>
+    <% }) %>
+  </div>
+<% } else { %>
+  <div class="vacio"><h2>Catálogo en preparación</h2><p>Pronto publicaremos los cultivos disponibles.</p></div>
+<% } %>
+
+<%- include('../partials/foot') %>

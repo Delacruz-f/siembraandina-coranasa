@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+
+<header class="pagina-publica__encabezado">
+  <p class="etiqueta">Estamos para escucharte</p>
+  <h1>Contacto</h1>
+  <p class="tenue">Comparte una consulta, sugerencia o comentario sobre el proyecto.</p>
+</header>
+
+<section id="formulario" class="tarjeta tarjeta--hundida formulario-contacto" aria-labelledby="titulo-formulario-contacto">
+  <h2 id="titulo-formulario-contacto">Envíanos un mensaje</h2>
+  <form action="/contacto" method="post" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label for="contacto-nombre">Nombre
+      <input id="contacto-nombre" name="nombre" autocomplete="name" maxlength="120" required>
+    </label>
+    <label for="contacto-email">Correo electrónico
+      <input id="contacto-email" name="email" type="email" autocomplete="email" maxlength="254" required>
+    </label>
+    <label for="contacto-asunto">Asunto
+      <input id="contacto-asunto" name="asunto" maxlength="160" required>
+    </label>
+    <label for="contacto-mensaje">Mensaje
+      <textarea id="contacto-mensaje" name="mensaje" rows="7" minlength="20" maxlength="5000" required></textarea>
+    </label>
+    <p class="tenue">El formulario limita la frecuencia de envíos para proteger el servicio.</p>
+    <button class="boton" type="submit">Enviar mensaje</button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

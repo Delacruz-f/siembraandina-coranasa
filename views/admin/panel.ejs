@@ -1,0 +1,131 @@
+<%- include('../partials/head', { titulo: 'Administración' }) %>
+
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Vista general</p>
+    <h1>Administración</h1>
+    <p>Supervisa usuarios, catálogos y la actividad del sistema desde un solo tablero.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/admin/usuarios">Gestionar usuarios</a>
+  </div>
+</section>
+
+<section class="rejilla-metricas" aria-label="Indicadores de administración">
+  <a class="metrica metrica--azul" href="/admin/usuarios">
+    <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/usuario') %></span>
+    <span class="metrica__valor"><%= indicadores.usuariosActivos %></span>
+    <span class="metrica__etiqueta">Usuarios activos</span>
+    <span class="metrica__pie">Ver cuentas y roles</span>
+  </a>
+  <a class="metrica metrica--morado" href="/admin/catalogos">
+    <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/mapa') %></span>
+    <span class="metrica__valor"><%= indicadores.parcelas %></span>
+    <span class="metrica__etiqueta">Parcelas</span>
+    <span class="metrica__pie">Catálogos y territorios</span>
+  </a>
+  <a class="metrica metrica--rosa" href="/admin/auditoria">
+    <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/gota') %></span>
+    <span class="metrica__valor"><%= indicadores.lecturasMes %></span>
+    <span class="metrica__etiqueta">Lecturas este mes</span>
+    <span class="metrica__pie">Actividad registrada</span>
+  </a>
+  <a class="metrica metrica--naranja" href="/tecnico/consultas">
+    <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/libro') %></span>
+    <span class="metrica__valor"><%= indicadores.consultasPendientes %></span>
+    <span class="metrica__etiqueta">Consultas pendientes</span>
+    <span class="metrica__pie">Revisar con técnicos</span>
+  </a>
+</section>
+
+<div class="panel-dos panel-dos--ancha">
+  <section class="tarjeta grafico-roles">
+    <div class="grafico-roles__cabecera">
+      <h2>Usuarios por rol</h2>
+      <p class="tenue"><%= indicadores.usuariosActivos %> usuario(s) activos en total</p>
+    </div>
+    <div class="grafico-roles__cuerpo">
+      <div class="grafico-roles__canvas-wrap">
+        <canvas
+          data-admin-roles="<%= JSON.stringify(indicadores.usuariosPorRol) %>"
+          aria-label="Gráfico de usuarios por rol"
+          role="img"
+        ></canvas>
+      </div>
+      <ul class="grafico-roles__leyenda" id="leyenda-roles"></ul>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <div class="panel-seccion__cabecera">
+      <div>
+        <p class="etiqueta">Por revisar</p>
+        <h2>Solicitudes pendientes</h2>
+      </div>
+      <span class="insignia-suave"><%= pendientes.length %> pendiente(s)</span>
+    </div>
+    <% if (!pendientes.length) { %>
+    <p class="tenue">No hay solicitudes pendientes.</p>
+    <% } else { %>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Solicitante</th>
+            <th>Institución</th>
+            <th>Colegiatura</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pendientes.slice(0, 10).forEach((s) => { %>
+          <tr>
+            <td><%= s.solicitante %><br /><span class="tenue"><%= s.solicitante_email %></span></td>
+            <td><%= s.institucion %></td>
+            <td><%= s.numero_colegiatura || '—' %></td>
+            <td><%= fecha(s.fecha_solicitud) %></td>
+            <td><a href="/admin/solicitudes">Revisar</a></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+</div>
+
+<section class="panel-seccion" aria-labelledby="titulo-accesos-admin">
+  <div class="panel-seccion__cabecera">
+    <div>
+      <p class="etiqueta">Herramientas</p>
+      <h2 id="titulo-accesos-admin">Accesos rápidos</h2>
+    </div>
+  </div>
+  <div class="rejilla">
+    <a class="tarjeta" href="/admin/solicitudes"
+      ><h2>Solicitudes de rol</h2>
+      <p class="tenue"><%= pendientes.length %> pendiente(s).</p></a
+    >
+    <a class="tarjeta" href="/admin/permisos"
+      ><h2>Roles y permisos</h2>
+      <p class="tenue"><%= roles.length %> roles configurados.</p></a
+    >
+    <a class="tarjeta" href="/admin/contacto"
+      ><h2>Mensajes de contacto</h2>
+      <p class="tenue">Revisar consultas del sitio.</p></a
+    >
+    <a class="tarjeta" href="/admin/configuraciones"
+      ><h2>Configuración</h2>
+      <p class="tenue">Editar datos generales del sitio.</p></a
+    >
+    <a class="tarjeta" href="/admin/trabajos"
+      ><h2>Trabajos programados</h2>
+      <p class="tenue">Ver estado y ejecutar sincronización, alertas y limpieza.</p></a
+    >
+  </div>
+</section>
+
+<script src="/vendor/chartjs/chart.umd.js" defer></script>
+<script src="/js/admin.js" defer></script>
+<%- include('../partials/foot') %>

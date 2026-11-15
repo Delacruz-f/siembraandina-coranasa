@@ -1,0 +1,17 @@
+<%- include('../partials/head', { titulo: 'Elegir nueva contraseña' }) %>
+
+<section class="tarjeta estrecha">
+  <h1>Elige una nueva contraseña</h1>
+  <form method="post" action="/restablecer/<%= token %>" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Nueva contraseña
+      <input type="password" name="password" required minlength="8" maxlength="72" autocomplete="new-password">
+    </label>
+    <label>Confirma la contraseña
+      <input type="password" name="confirmar" required minlength="8" maxlength="72" autocomplete="new-password">
+    </label>
+    <button class="boton" type="submit">Actualizar contraseña</button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

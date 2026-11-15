@@ -1,0 +1,66 @@
+<%- include('../partials/head', { titulo }) %>
+
+<h1><%= titulo %></h1>
+<form method="post" action="<%= accion %>" class="formulario tarjeta" data-confirmar="¿Guardar este artículo con el estado seleccionado?">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label for="titulo">Título
+    <input id="titulo" name="titulo" minlength="5" maxlength="180" required value="<%= articulo ? articulo.titulo : '' %>">
+  </label>
+  <label for="categoria">Categoría
+    <select id="categoria" name="categoria_id" required>
+      <option value="">Selecciona una categoría</option>
+      <% categorias.forEach((categoria) => { %>
+        <option value="<%= categoria.id %>" <%= articulo && Number(articulo.categoria_id) === Number(categoria.id) ? 'selected' : '' %>><%= categoria.nombre %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label for="estado">Estado
+    <select id="estado" name="estado" data-estado-publicacion required>
+      <% ['borrador', 'publicada', 'programada', 'archivada'].forEach((estado) => { %>
+        <option value="<%= estado %>" <%= articulo && articulo.estado === estado ? 'selected' : (!articulo && estado === 'borrador' ? 'selected' : '') %>><%= estado %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label data-fecha-programada for="publicada_en">Programar para
+    <input id="publicada_en" name="publicada_en" type="datetime-local" value="<%= articulo && articulo.estado === 'programada' ? new Date(articulo.publicada_en).toISOString().slice(0, 16) : '' %>">
+  </label>
+  <label for="etiquetas">Etiquetas separadas por coma
+    <input id="etiquetas" name="etiquetas" maxlength="700" value="<%= articulo ? articulo.etiquetas.map((etiqueta) => etiqueta.nombre).join(', ') : '' %>" list="etiquetas-existentes">
+    <datalist id="etiquetas-existentes"><% etiquetas.forEach((etiqueta) => { %><option value="<%= etiqueta.nombre %>"><% }) %></datalist>
+  </label>
+  <fieldset>
+    <legend>Biblioteca de imágenes (texto alternativo requerido en la biblioteca)</legend>
+    <% if (imagenes.length) { %>
+      <div class="rejilla">
+        <% imagenes.forEach((imagen) => { %>
+          <label class="casilla">
+            <input type="checkbox" name="archivo_ids" value="<%= imagen.id %>" <%= articulo && articulo.archivos.some((archivo) => Number(archivo.id) === Number(imagen.id)) ? 'checked' : '' %>>
+            <%- include('../partials/imagen', { imagen, sizes: '100px', mostrarAtribucion: false }) %>
+            <span><%= imagen.alt %></span>
+          </label>
+        <% }) %>
+      </div>
+    <% } else { %><p class="tenue">Aún no hay imágenes. <a href="/editor/biblioteca">Abrir biblioteca</a>.</p><% } %>
+  </fieldset>
+  <fieldset class="editor-contenido">
+    <legend>Contenido del artículo</legend>
+    <div class="editor-herramientas" role="toolbar" aria-label="Formato del artículo">
+      <button class="boton boton-secundario" type="button" data-formato="bold" aria-label="Negrita"><strong>N</strong></button>
+      <button class="boton boton-secundario" type="button" data-formato="italic" aria-label="Cursiva"><em>C</em></button>
+      <button class="boton boton-secundario" type="button" data-formato="formatBlock" data-valor="h2">Título</button>
+      <button class="boton boton-secundario" type="button" data-formato="formatBlock" data-valor="blockquote">Cita</button>
+      <button class="boton boton-secundario" type="button" data-formato="insertUnorderedList">Lista</button>
+      <button class="boton boton-secundario" type="button" data-formato="insertOrderedList">Lista numerada</button>
+    </div>
+    <div id="contenido_editor" class="editor-superficie" contenteditable="true" role="textbox" aria-multiline="true" aria-required="true" aria-label="Contenido del artículo"><%- articulo ? articulo.contenido : '' %></div>
+    <textarea id="contenido" name="contenido" maxlength="100000" hidden><%= articulo ? articulo.contenido : '' %></textarea>
+  </fieldset>
+  <p class="tenue">Se eliminarán etiquetas, atributos y enlaces no permitidos antes de guardar. Para mostrar imágenes en el artículo, usa solo imágenes de la biblioteca.</p>
+  <div class="acciones">
+    <button class="boton" type="submit">Guardar artículo</button>
+    <a class="boton boton-secundario" href="/editor">Cancelar</a>
+  </div>
+</form>
+<script src="/js/editor.js" defer></script>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,65 @@
+<%- include('../partials/head', { titulo }) %>
+
+<h1>Biblioteca de imágenes</h1>
+<form method="post" action="/editor/biblioteca" enctype="multipart/form-data" class="formulario tarjeta" data-editor-upload>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label for="imagen">Imagen JPG, PNG o WEBP (máximo 10 MB)
+    <input id="imagen" type="file" name="imagen" accept="image/jpeg,image/png,image/webp" required>
+  </label>
+  <label for="texto_alternativo">Texto alternativo
+    <input id="texto_alternativo" name="texto_alternativo" maxlength="255" required>
+  </label>
+  <label for="autor_imagen">Autor de la imagen (obligatorio)
+    <input id="autor_imagen" name="autor_imagen" maxlength="160" required placeholder="Ej.: María Quispe">
+  </label>
+  <label for="autor_url">Enlace del autor (opcional)
+    <input id="autor_url" name="autor_url" type="url" maxlength="255" placeholder="https://...">
+  </label>
+  <label for="licencia">Licencia (obligatorio)
+    <input id="licencia" name="licencia" maxlength="160" required list="licencias-sugeridas" placeholder="Ej.: CC BY-SA 4.0">
+    <datalist id="licencias-sugeridas">
+      <option value="CC BY 4.0"></option>
+      <option value="CC BY-SA 4.0"></option>
+      <option value="CC BY-NC 4.0"></option>
+      <option value="Dominio público"></option>
+      <option value="Uso autorizado por el autor"></option>
+    </datalist>
+  </label>
+  <label for="licencia_url">Enlace de la licencia (opcional)
+    <input id="licencia_url" name="licencia_url" type="url" maxlength="255" placeholder="https://creativecommons.org/licenses/by-sa/4.0/">
+  </label>
+  <label for="formato_recorte">Formato de recorte
+    <select id="formato_recorte" name="formato_recorte" data-formato-recorte>
+      <option value="original">Original</option>
+      <option value="cuadrado">Cuadrado (1:1)</option>
+      <option value="horizontal">Horizontal (16:9)</option>
+      <option value="vertical">Vertical (4:5)</option>
+    </select>
+  </label>
+  <div class="editor-recorte" data-vista-recorte hidden>
+    <img data-imagen-recorte alt="" hidden>
+  </div>
+  <label for="recorte_x">Ajuste horizontal del recorte
+    <input id="recorte_x" name="recorte_x" type="range" min="0" max="100" value="50" data-recorte-x>
+  </label>
+  <label for="recorte_y">Ajuste vertical del recorte
+    <input id="recorte_y" name="recorte_y" type="range" min="0" max="100" value="50" data-recorte-y>
+  </label>
+  <label for="articulo_id">Volver a editar artículo (opcional)
+    <input id="articulo_id" name="articulo_id" type="number" min="1">
+  </label>
+  <button class="boton" type="submit">Subir imagen</button>
+  <p class="tenue" data-editor-upload-status aria-live="polite"></p>
+</form>
+
+<div class="rejilla">
+  <% imagenes.forEach((imagen) => { %>
+    <figure class="tarjeta">
+      <%- include('../partials/imagen', { imagen, sizes: '320px', mostrarAtribucion: true }) %>
+      <figcaption><%= imagen.alt %><br><code>&lt;img src="/media/imagenes/<%= imagen.id %>/800" alt="..."&gt;</code></figcaption>
+    </figure>
+  <% }) %>
+</div>
+<script src="/js/editor.js" defer></script>
+
+<%- include('../partials/foot') %>

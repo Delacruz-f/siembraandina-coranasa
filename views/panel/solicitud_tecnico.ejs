@@ -1,0 +1,21 @@
+<%- include('../partials/head', { titulo: 'Solicitar rol de técnico' }) %>
+
+<section class="tarjeta estrecha">
+  <h1>Solicitar rol de técnico</h1>
+  <p class="tenue">Cuéntanos a qué institución representas. Puedes adjuntar un documento de respaldo (imagen o PDF, máximo 10 MB).</p>
+  <form method="post" action="/perfil/solicitud-tecnico" enctype="multipart/form-data" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Institución o comunidad
+      <input name="institucion" required minlength="3" maxlength="160" placeholder="Ej.: Agencia Agraria Cusco">
+    </label>
+    <label>Número de colegiatura (opcional)
+      <input name="numero_colegiatura" maxlength="60">
+    </label>
+    <label>Documento de respaldo (opcional)
+      <input type="file" name="documento" accept="image/jpeg,image/png,image/webp,application/pdf">
+    </label>
+    <button class="boton" type="submit">Enviar solicitud</button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,235 @@
+<%- include('../partials/head', { titulo: t("home.titulo") }) %>
+
+<div class="landing">
+  <section class="landing-hero" aria-labelledby="titulo-inicio">
+    <div class="landing-hero__contenido">
+      <p class="landing-etiqueta"><%= t("home.landingEtiqueta") %></p>
+      <h1 id="titulo-inicio"><%= t("home.landingTitulo") %> <span><%= t("home.landingAcento") %></span></h1>
+      <p class="landing-hero__introduccion"><%= t("home.landingIntroduccion") %></p>
+      <div class="landing-acciones">
+        <a class="landing-boton landing-boton--principal" href="/calendario">
+          <%= t("home.landingConsultar") %>
+          <span aria-hidden="true">→</span>
+        </a>
+        <a class="landing-boton landing-boton--secundario" href="#como-funciona"> <%= t("home.landingVerComo") %> </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-seccion landing-reto" aria-labelledby="titulo-reto">
+    <div class="landing-encabezado">
+      <p class="landing-etiqueta"><%= t("home.landingRetoEtiqueta") %></p>
+      <h2 id="titulo-reto">
+        <%= t("home.landingRetoInicio") %> <span><%= t("home.landingRetoAcento") %></span> <%=
+        t("home.landingRetoFinal") %>
+      </h2>
+    </div>
+    <div class="landing-columnas">
+      <section class="landing-columna landing-columna--reto" aria-labelledby="titulo-desafios">
+        <h3 id="titulo-desafios"><%= t("home.landingDesafios") %></h3>
+        <article class="landing-tarjeta landing-tarjeta--reto">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-7.5a4 4 0 0 1 0 7.75M20 21v-2a4 4 0 0 0-3-3.87"
+              />
+            </svg>
+          </span>
+          <h4><%= t("home.landingRetoTecnicos") %></h4>
+        </article>
+        <article class="landing-tarjeta landing-tarjeta--reto">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+              <path d="M12 8v4m0 4h.01" />
+            </svg>
+          </span>
+          <h4><%= t("home.landingRetoEstaciones") %></h4>
+        </article>
+        <article class="landing-tarjeta landing-tarjeta--reto">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 9a12 12 0 0 1 14 0M8 12a7 7 0 0 1 8 0m-5 4h.01M2 5a16 16 0 0 1 20 0" />
+            </svg>
+          </span>
+          <h4><%= t("home.landingRetoSenal") %></h4>
+        </article>
+      </section>
+      <section class="landing-columna landing-columna--solucion" aria-labelledby="titulo-plataforma">
+        <h3 id="titulo-plataforma"><%= t("home.landingPlataforma") %></h3>
+        <article class="landing-tarjeta landing-tarjeta--solucion">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          <h4><%= t("home.landingSolucionDatos") %></h4>
+        </article>
+        <article class="landing-tarjeta landing-tarjeta--solucion">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 18h.01M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </span>
+          <h4><%= t("home.landingSolucionIA") %></h4>
+        </article>
+        <article class="landing-tarjeta landing-tarjeta--solucion">
+          <span class="landing-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 21h18M5 21V7l8-4v18m6 0V11l-6-4" />
+              <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01" />
+            </svg>
+          </span>
+          <h4><%= t("home.landingSolucionTecnico") %></h4>
+        </article>
+      </section>
+    </div>
+  </section>
+
+  <section class="landing-seccion" aria-labelledby="titulo-datos">
+    <div class="landing-encabezado">
+      <p class="landing-etiqueta"><%= t("home.landingDatosEtiqueta") %></p>
+      <h2 id="titulo-datos"><%= t("home.landingDatosInicio") %> <span><%= t("home.landingDatosAcento") %></span></h2>
+    </div>
+    <div class="landing-rejilla landing-rejilla--datos">
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true"><%- include("../iconos/gota") %></span>
+        <h3><%= t("home.landingDatoHumedad") %></h3>
+        <p><%= t("home.landingDatoHumedadTexto") %></p>
+      </article>
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true"><%- include("../iconos/termometro") %></span>
+        <h3><%= t("home.landingDatoTemperatura") %></h3>
+        <p><%= t("home.landingDatoTemperaturaTexto") %></p>
+      </article>
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="17" rx="2" />
+            <path d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+        </span>
+        <h3><%= t("home.landingDatoPronostico") %></h3>
+        <p><%= t("home.landingDatoPronosticoTexto") %></p>
+      </article>
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true"><%- include("../iconos/brote") %></span>
+        <h3><%= t("home.landingDatoCalendario") %></h3>
+        <p><%= t("home.landingDatoCalendarioTexto") %></p>
+      </article>
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true"><%- include("../iconos/cuadricula") %></span>
+        <h3><%= t("home.landingDatoMonitor") %></h3>
+        <p><%= t("home.landingDatoMonitorTexto") %></p>
+      </article>
+      <article class="landing-tarjeta landing-tarjeta--dato">
+        <span class="landing-icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20 7h-9m4 10H4m12-12 3 2-3 2M8 15l-3 2 3 2" /></svg>
+        </span>
+        <h3><%= t("home.landingDatoTecnicos") %></h3>
+        <p><%= t("home.landingDatoTecnicosTexto") %></p>
+      </article>
+    </div>
+  </section>
+
+  <section id="como-funciona" class="landing-seccion landing-proceso" aria-labelledby="titulo-como-funciona">
+    <div class="landing-encabezado">
+      <p class="landing-etiqueta"><%= t("home.landingProcesoEtiqueta") %></p>
+      <h2 id="titulo-como-funciona">
+        <%= t("home.landingProcesoInicio") %> <span><%= t("home.landingProcesoAcento") %></span>
+      </h2>
+    </div>
+    <div class="landing-rejilla landing-rejilla--pasos">
+      <article class="landing-paso">
+        <span class="landing-paso__numero" aria-hidden="true">01</span>
+        <h3><%= t("home.landingPasoLugar") %></h3>
+        <p><%= t("home.landingPasoLugarTexto") %></p>
+      </article>
+      <article class="landing-paso">
+        <span class="landing-paso__numero" aria-hidden="true">02</span>
+        <h3><%= t("home.landingPasoDatos") %></h3>
+        <p><%= t("home.landingPasoDatosTexto") %></p>
+      </article>
+      <article class="landing-paso">
+        <span class="landing-paso__numero" aria-hidden="true">03</span>
+        <h3><%= t("home.landingPasoFechas") %></h3>
+        <p><%= t("home.landingPasoFechasTexto") %></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="landing-seccion landing-confianza" aria-labelledby="titulo-confianza">
+    <div class="landing-confianza__icono" aria-hidden="true"><%- include("../iconos/info") %></div>
+    <div>
+      <p class="landing-etiqueta"><%= t("home.landingConfianzaEtiqueta") %></p>
+      <h2 id="titulo-confianza">
+        <%= t("home.landingConfianzaInicio") %> <span><%= t("home.landingConfianzaAcento") %></span>
+      </h2>
+      <p><%= t("home.landingConfianzaTexto") %></p>
+    </div>
+  </section>
+
+  <section class="landing-seccion landing-equipo" aria-labelledby="titulo-equipo">
+    <div class="landing-encabezado">
+      <p class="landing-etiqueta"><%= t("home.landingEquipoEtiqueta") %></p>
+      <h2 id="titulo-equipo"><%= t("home.landingEquipoInicio") %> <span><%= t("home.landingEquipoAcento") %></span></h2>
+    </div>
+    <div class="landing-equipo__historia">
+      <%- include("../partials/historia-equipo") %>
+    </div>
+    <% const miembros = Array.isArray(equipo) ? equipo.filter((persona) => persona && persona.nombre) : []; %> <% if
+    (miembros.length) { %>
+    <div class="landing-rejilla landing-rejilla--equipo">
+      <% miembros.forEach((miembro) => { %>
+      <article class="landing-miembro">
+        <% if (miembro.foto) { %>
+        <img
+          class="landing-miembro__foto"
+          src="<%= miembro.foto %>"
+          alt="<%= t('home.landingFotoEquipo', { nombre: miembro.nombre }) %>"
+          width="112"
+          height="112"
+          loading="lazy"
+        />
+        <% } else { %>
+        <span class="landing-miembro__foto landing-miembro__foto--vacia" aria-hidden="true"></span>
+        <% } %>
+        <h3><%= miembro.nombre %></h3>
+        <p class="landing-miembro__rol"><%= miembro.rol %></p>
+        <p class="landing-miembro__descripcion"><%= miembro.descripcion %></p>
+        <div class="landing-miembro__enlaces">
+          <% if (miembro.linkedin) { %>
+          <a
+            href="<%= miembro.linkedin %>"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="<%= t('home.landingLinkedinEquipo', { nombre: miembro.nombre }) %>"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6ZM2 9h4v12H2zM4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"
+              />
+            </svg>
+          </a>
+          <% } %> <% if (miembro.correo) { %>
+          <a
+            href="mailto:<%= miembro.correo %>"
+            aria-label="<%= t('home.landingCorreoEquipo', { nombre: miembro.nombre }) %>"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="m3 7 9 6 9-6" />
+            </svg>
+          </a>
+          <% } %>
+        </div>
+      </article>
+      <% }) %>
+    </div>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,27 @@
+<%- include('../partials/head', { titulo }) %>
+<h1>Mensajes de contacto</h1>
+<form method="get" action="/admin/contacto" class="formulario en-fila">
+  <label>Buscar por nombre, correo o asunto<input name="q" value="<%= filtros.busqueda %>" maxlength="120"></label>
+  <label>Estado<select name="leido"><option value="">Todos</option><option value="0" <%= filtros.leido === '0' ? 'selected' : '' %>>Pendientes</option><option value="1" <%= filtros.leido === '1' ? 'selected' : '' %>>Revisados</option></select></label>
+  <label>Ordenar por<select name="orden"><% [['fecha','Fecha'],['nombre','Nombre'],['asunto','Asunto'],['estado','Estado']].forEach(([valor,nombre]) => { %><option value="<%= valor %>" <%= filtros.orden === valor ? 'selected' : '' %>><%= nombre %></option><% }) %></select></label>
+  <label>Dirección<select name="direccion"><option value="desc" <%= filtros.direccion === 'desc' ? 'selected' : '' %>>Descendente</option><option value="asc" <%= filtros.direccion === 'asc' ? 'selected' : '' %>>Ascendente</option></select></label>
+  <button class="boton" type="submit">Buscar</button>
+</form>
+<p class="tenue"><%= total %> mensaje(s).</p>
+<div class="rejilla">
+  <% mensajes.forEach((mensaje) => { %>
+    <article class="tarjeta">
+      <p class="etiqueta"><%= fechaHora(mensaje.created_at) %> · <%= mensaje.leido ? 'Revisado' : 'Pendiente' %></p>
+      <h2><%= mensaje.asunto %></h2>
+      <p><%= mensaje.mensaje %></p>
+      <p><%= mensaje.nombre %> · <a href="mailto:<%= mensaje.email %>"><%= mensaje.email %></a></p>
+      <form method="post" action="/admin/contacto/<%= mensaje.id %>/estado" data-confirmar="¿Cambiar el estado de revisión de este mensaje?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="leido" value="<%= mensaje.leido ? '0' : '1' %>">
+        <button class="boton boton-secundario" type="submit"><%= mensaje.leido ? 'Marcar pendiente' : 'Marcar revisado' %></button>
+      </form>
+    </article>
+  <% }) %>
+</div>
+<% if (paginas > 1) { %><nav class="paginacion" aria-label="Páginas de mensajes"><% if (pagina > 1) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&leido=<%= filtros.leido %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina - 1 %>">Anterior</a><% } %><span>Página <%= pagina %> de <%= paginas %></span><% if (pagina < paginas) { %><a class="boton boton-secundario" href="?q=<%= encodeURIComponent(filtros.busqueda) %>&leido=<%= filtros.leido %>&orden=<%= filtros.orden %>&direccion=<%= filtros.direccion %>&pagina=<%= pagina + 1 %>">Siguiente</a><% } %></nav><% } %>
+<%- include('../partials/foot') %>

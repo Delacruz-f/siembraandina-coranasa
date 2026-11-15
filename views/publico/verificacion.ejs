@@ -1,0 +1,15 @@
+<%- include('../partials/head', { titulo: 'Reenviar verificación' }) %>
+
+<section class="tarjeta estrecha">
+  <h1>Reenvía la verificación</h1>
+  <p class="tenue">Si todavía no verificaste tu correo, te enviaremos un nuevo enlace.</p>
+  <form method="post" action="/verificacion/reenvio" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Correo electrónico
+      <input type="email" name="email" required autocomplete="email" value="<%= valores.email || '' %>">
+    </label>
+    <button class="boton" type="submit">Enviar nuevo enlace</button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

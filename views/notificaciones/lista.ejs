@@ -1,0 +1,42 @@
+<%- include('../partials/head', { titulo: t("notificaciones.titulo") }) %>
+
+<div class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo"><%= t("notificaciones.centro") %></p>
+    <h1><%= t("notificaciones.titulo") %></h1>
+    <p><span data-notificaciones-count-text><%= noLeidas %></span> <%= t("notificaciones.sinLeer") %></p>
+  </div>
+</div>
+
+<ul id="lista-notificaciones" class="lista-registros">
+  <% if (notificaciones.length) { %>
+    <% notificaciones.forEach((notificacion) => { %>
+      <li class="tarjeta" data-notificacion-id="<%= notificacion.id %>">
+        <p><a href="<%= notificacion.enlace %>"><%= notificacion.mensaje %></a></p>
+        <time class="tenue" datetime="<%= fechaISO(notificacion.created_at) %>"><%= fechaHora(notificacion.created_at) %></time>
+        <% if (!notificacion.leida) { %>
+          <form method="post" action="/notificaciones/<%= notificacion.id %>/leida" class="en-linea">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="enlace" type="submit"><%= t("notificaciones.marcarLeida") %></button>
+          </form>
+        <% } else { %>
+          <span class="etiqueta-estado etiqueta-estado--exito"><%= t("notificaciones.leida") %></span>
+        <% } %>
+      </li>
+    <% }) %>
+  <% } else { %>
+    <li class="tarjeta estado-vacio" data-notificaciones-vacio>
+      <p><%= t("notificaciones.vacio") %></p>
+    </li>
+  <% } %>
+</ul>
+
+<% if (paginas > 1) { %>
+  <nav class="paginacion" aria-label="<%= t('notificaciones.paginas') %>">
+    <% if (pagina > 1) { %><a class="boton boton-secundario" href="?pagina=<%= pagina - 1 %>" rel="prev"><%= t("notificaciones.anterior") %></a><% } %>
+    <span><%= t("notificaciones.pagina", { pagina, paginas }) %></span>
+    <% if (pagina < paginas) { %><a class="boton boton-secundario" href="?pagina=<%= pagina + 1 %>" rel="next"><%= t("notificaciones.siguiente") %></a><% } %>
+  </nav>
+<% } %>
+
+<%- include('../partials/foot') %>

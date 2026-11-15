@@ -1,0 +1,50 @@
+<%- include('../partials/head', { titulo: 'Permisos por rol' }) %>
+
+<h1>Permisos por rol</h1>
+<p class="tenue">Marca los permisos de cada rol. Los cambios se reflejan en la siguiente petición autenticada del usuario. El rol administrador conserva todos los permisos.</p>
+
+<section class="tarjeta">
+  <h2>Crear un rol personalizado</h2>
+  <p>Luego asígnalo a una cuenta desde <a href="/admin/usuarios">Gestión de usuarios</a> para probar sus permisos sin cambiar código.</p>
+  <form method="post" action="/admin/roles" class="formulario" data-confirmar="¿Crear este rol con los permisos seleccionados?">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Clave (minúsculas, números y guion bajo)
+      <input name="clave" pattern="[a-z][a-z0-9_]{1,39}" maxlength="40" required>
+    </label>
+    <label>Nombre<input name="nombre" minlength="2" maxlength="80" required></label>
+    <label>Descripción<textarea name="descripcion" maxlength="500" rows="2"></textarea></label>
+    <fieldset><legend>Permisos iniciales</legend>
+      <div class="rejilla-permisos">
+        <% permisos.forEach(function (permiso) { %>
+          <label class="casilla"><input type="checkbox" name="permisos" value="<%= permiso.clave %>"><span><%= permiso.clave %><br><span class="tenue"><%= permiso.descripcion %></span></span></label>
+        <% }) %>
+      </div>
+    </fieldset>
+    <button class="boton" type="submit">Crear rol</button>
+  </form>
+</section>
+
+<% roles.forEach(function (r) { %>
+  <section class="tarjeta">
+    <h2><%= r.nombre %> <span class="tenue">(<%= r.clave %>)</span></h2>
+    <p class="tenue"><%= r.descripcion || '' %></p>
+    <form method="post" action="/admin/permisos/<%= r.clave %>" data-confirmar="¿Guardar la matriz de permisos para este rol?">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="rejilla-permisos">
+        <% permisos.forEach(function (p) { %>
+          <label class="casilla">
+            <input type="checkbox" name="permisos" value="<%= p.clave %>"
+              <%= (asignados[r.clave] || []).includes(p.clave) ? 'checked' : '' %>
+              <%= r.clave === 'administrador' ? 'disabled' : '' %>>
+            <span><%= p.clave %><br><span class="tenue"><%= p.descripcion %></span></span>
+          </label>
+        <% }) %>
+      </div>
+      <% if (r.clave !== 'administrador') { %>
+        <button class="boton" type="submit">Guardar permisos de <%= r.nombre %></button>
+      <% } %>
+    </form>
+  </section>
+<% }) %>
+
+<%- include('../partials/foot') %>

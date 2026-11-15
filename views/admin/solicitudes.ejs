@@ -1,0 +1,51 @@
+<%- include('../partials/head', { titulo: 'Solicitudes de rol' }) %>
+
+<h1>Solicitudes de rol</h1>
+
+<nav class="pestanas" aria-label="Filtrar por estado">
+  <a href="/admin/solicitudes?estado=pendiente" <%= estado === 'pendiente' ? 'aria-current="page"' : '' %>>Pendientes</a>
+  <a href="/admin/solicitudes?estado=aprobada" <%= estado === 'aprobada' ? 'aria-current="page"' : '' %>>Aprobadas</a>
+  <a href="/admin/solicitudes?estado=rechazada" <%= estado === 'rechazada' ? 'aria-current="page"' : '' %>>Rechazadas</a>
+</nav>
+
+<% if (!solicitudes.length) { %>
+  <section class="tarjeta"><p class="tenue">No hay solicitudes en este estado.</p></section>
+<% } else { %>
+  <% solicitudes.forEach(function (s) { %>
+    <section class="tarjeta">
+      <h2><%= s.solicitante %> <span class="insignia insignia-<%= s.estado === 'aprobada' ? 'ok' : s.estado === 'rechazada' ? 'error' : 'aviso' %>"><%= s.estado %></span></h2>
+      <p class="tenue"><%= s.solicitante_email %> · <%= s.solicitante_comunidad || 'Sin comunidad' %> · Rol solicitado: <%= s.rol_nombre %></p>
+      <dl class="datos">
+        <div><dt>Institución</dt><dd><%= s.institucion %></dd></div>
+        <div><dt>Colegiatura</dt><dd><%= s.numero_colegiatura || '—' %></dd></div>
+        <div><dt>Enviada</dt><dd><%= fecha(s.fecha_solicitud) %></dd></div>
+      </dl>
+      <% if (s.archivo_id) { %>
+        <p><a href="/archivos/<%= s.archivo_id %>" rel="noopener">Ver documento de respaldo</a></p>
+      <% } %>
+
+      <% if (s.estado === 'pendiente') { %>
+        <div class="dos-columnas">
+          <form method="post" action="/admin/solicitudes/<%= s.id %>/aprobar" class="formulario" data-confirmar="¿Aprobar esta solicitud y asignar el rol solicitado?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>Observación (opcional)
+              <input name="observacion" maxlength="500">
+            </label>
+            <button class="boton" type="submit">Aprobar</button>
+          </form>
+          <form method="post" action="/admin/solicitudes/<%= s.id %>/rechazar" class="formulario" data-confirmar="¿Rechazar esta solicitud?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>Motivo del rechazo (obligatorio)
+              <input name="observacion" required minlength="5" maxlength="500">
+            </label>
+            <button class="boton boton-peligro" type="submit">Rechazar</button>
+          </form>
+        </div>
+      <% } else { %>
+        <p class="tenue">Revisada por <%= s.revisor || '—' %> el <%= fecha(s.fecha_revision) %>. <%= s.observacion || '' %></p>
+      <% } %>
+    </section>
+  <% }) %>
+<% } %>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,159 @@
+<%- include('../partials/head', { titulo: t("perfil.titulo") }) %>
+
+<section class="panel-hero">
+  <div class="u-flex u-mt-2">
+    <% if (foto && foto.variantes.length) { %>
+      <img class="avatar-perfil avatar-perfil--hero" src="<%= foto.variantes[0].webp %>" alt="<%= t('perfil.fotoAlt', { nombre: usuario.nombre }) %>" width="80" height="80">
+    <% } else { %>
+      <div class="avatar-perfil avatar-perfil--inicial avatar-perfil--hero" role="img" aria-label="<%= t('perfil.sinFoto') %>"><%= usuario.nombre.slice(0, 1).toUpperCase() %></div>
+    <% } %>
+    <div>
+      <p class="panel-hero__saludo"><%= t("perfil.miCuenta") %></p>
+      <h1><%= t("perfil.titulo") %></h1>
+      <p><%= usuario.email %></p>
+    </div>
+  </div>
+</section>
+
+<section class="tarjeta">
+  <h2><%= t("perfil.foto") %></h2>
+  <form id="form-foto-perfil" method="post" action="/perfil/foto" enctype="multipart/form-data" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label><%= t("perfil.requisitosFoto") %>
+      <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" required>
+    </label>
+    <button class="boton boton-secundario" type="submit"><%= t("perfil.actualizarFoto") %></button>
+    <p id="estado-foto-perfil" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
+<section class="tarjeta" id="verificacion-correo">
+  <h2><%= t("perfil.verificacionCorreo") %></h2>
+  <% if (usuario.correoVerificado || usuario.email_verificado_en) { %>
+    <p><span class="etiqueta-estado etiqueta-estado--exito" aria-label="<%= t('perfil.correoVerificado') %>"><%= t("perfil.verificado") %></span></p>
+    <p class="tenue"><%= t("perfil.correoFueVerificado") %><% if (usuario.email_verificado_en) { %> <%= fecha(usuario.email_verificado_en) %><% } %>.</p>
+  <% } else { %>
+    <p><span class="etiqueta-estado" aria-label="<%= t('perfil.sinVerificar') %>"><%= t("perfil.sinVerificar") %></span></p>
+    <p class="tenue"><%= t("perfil.beneficiosVerificacion") %></p>
+    <form method="post" action="/perfil/verificacion/enviar" class="formulario u-mt-3">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="boton boton-secundario" type="submit"><%= t("perfil.enviarVerificacion") %></button>
+    </form>
+  <% } %>
+</section>
+
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2><%= t("perfil.datosPersonales") %></h2>
+    <form method="post" action="/perfil" class="formulario" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label><%= t("perfil.nombreCompleto") %>
+        <input name="nombre" required minlength="3" maxlength="120" value="<%= usuario.nombre %>">
+      </label>
+      <label><%= t("perfil.correoElectronico") %>
+        <input type="email" name="email" required maxlength="120" value="<%= usuario.email %>" autocomplete="email">
+      </label>
+      <label><%= t("perfil.contrasenaActual") %> <span class="tenue"><%= t("perfil.soloSiCambiaCorreo") %></span>
+        <input type="password" name="password_actual" autocomplete="current-password">
+      </label>
+      <label><%= t("perfil.telefono") %>
+        <input name="telefono" maxlength="30" value="<%= usuario.telefono || '' %>">
+      </label>
+      <label><%= t("perfil.comunidad") %>
+        <input name="comunidad" maxlength="120" value="<%= usuario.comunidad || '' %>">
+      </label>
+      <button class="boton" type="submit"><%= t("perfil.guardarCambios") %></button>
+    </form>
+  </section>
+
+  <section class="tarjeta">
+    <h2><%= t("perfil.cambiarContrasena") %></h2>
+    <form method="post" action="/perfil/password" class="formulario" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label><%= t("perfil.contrasenaActual") %>
+        <input type="password" name="actual" required autocomplete="current-password">
+      </label>
+      <label><%= t("perfil.nuevaContrasena") %>
+        <input type="password" name="nueva" required minlength="8" autocomplete="new-password">
+      </label>
+      <label><%= t("perfil.repetirContrasena") %>
+        <input type="password" name="confirmar" required minlength="8" autocomplete="new-password">
+      </label>
+      <button class="boton" type="submit"><%= t("perfil.cambiarContrasena") %></button>
+    </form>
+  </section>
+</div>
+
+<section class="tarjeta" aria-labelledby="titulo-tokens-api">
+  <h2 id="titulo-tokens-api"><%= t("perfil.accesoApi") %></h2>
+  <p class="tenue"><%= t("perfil.descripcionApi") %></p>
+  <% if (tokenNuevo) { %>
+    <p class="aviso aviso-exito"><%= t("perfil.copiarToken") %></p>
+    <p><code class="token-nuevo"><%= tokenNuevo %></code></p>
+  <% } %>
+  <% if (tokensApi && tokensApi.length) { %>
+    <ul class="lista-tarjetas">
+      <% tokensApi.forEach((token) => { %>
+        <li class="tarjeta tarjeta--hundida">
+          <p><strong><%= token.nombre %></strong> · <code><%= token.prefijo %>…</code></p>
+          <p class="tenue"><%= token.revocado_en ? t("perfil.revocado") : t("perfil.activo") %> · <%= t("perfil.creado") %> <%= fecha(token.created_at) %><% if (token.ultimo_uso_en) { %> · <%= t("perfil.ultimoUso") %> <%= fecha(token.ultimo_uso_en) %><% } %>.</p>
+          <% if (!token.revocado_en) { %>
+            <form method="post" action="/perfil/tokens/<%= token.id %>/revocar">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="enlace peligro" type="submit"><%= t("perfil.revocar") %></button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+  <form method="post" action="/perfil/tokens" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label><%= t("perfil.nombreToken") %>
+      <input name="nombre" required minlength="3" maxlength="80" placeholder="<%= t('perfil.ejemploApp') %>">
+    </label>
+    <label><%= t("perfil.diasValidez") %>
+      <input name="dias" type="number" min="1" max="730">
+    </label>
+    <button class="boton boton-secundario" type="submit"><%= t("perfil.crearToken") %></button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <h2><%= t("perfil.preferenciasNotificacion") %></h2>
+  <form method="post" action="/perfil/preferencias" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="casilla">
+      <input type="checkbox" name="correo_alertas" value="on" <%= preferencias.correo_alertas ? 'checked' : '' %>>
+      <%= t("perfil.alertasCorreo") %>
+    </label>
+    <label class="casilla">
+      <input type="checkbox" name="avisos_panel" value="on" <%= preferencias.avisos_panel ? 'checked' : '' %>>
+      <%= t("perfil.avisosPanel") %>
+    </label>
+    <label class="casilla">
+      <input type="checkbox" name="resumen_semanal" value="on" <%= preferencias.resumen_semanal ? 'checked' : '' %>>
+      <%= t("perfil.resumenSemanal") %>
+    </label>
+    <button class="boton" type="submit"><%= t("perfil.guardarPreferencias") %></button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <h2><%= t("perfil.rolTecnico") %></h2>
+  <% if (usuario.roles.includes('tecnico')) { %>
+    <p class="aviso aviso-exito"><%= t("perfil.yaTecnico") %> <a href="/tecnico"><%= t("perfil.panelTecnico") %></a></p>
+  <% } else if (solicitud && solicitud.estado === 'pendiente') { %>
+    <p class="aviso aviso-aviso"><%= t("perfil.solicitudPendiente") %></p>
+    <p class="tenue"><%= t("perfil.institucion") %>: <%= solicitud.institucion %> · <%= t("perfil.enviada") %>: <%= fecha(solicitud.fecha_solicitud) %></p>
+  <% } else { %>
+    <% if (solicitud && solicitud.estado === 'rechazada') { %>
+      <p class="aviso aviso-error"><%= t("perfil.solicitudRechazada") %> <%= t("perfil.motivo") %>: <%= solicitud.observacion %></p>
+    <% } %>
+    <p class="tenue"><%= t("perfil.infoSolicitudTecnico") %></p>
+    <a class="boton" href="/perfil/solicitud-tecnico"><%= t("perfil.solicitarRolTecnico") %></a>
+  <% } %>
+</section>
+
+<script src="/js/perfil-foto.js" defer></script>
+<%- include('../partials/foot') %>

@@ -1,0 +1,221 @@
+<%- include('../partials/head', { titulo: 'Mi panel' }) %> <% const parcelasConLectura = parcelas.filter(function (p) {
+return Boolean(p.ultima); }); const humedadPromedio = parcelasConLectura.length ? Math.round(
+parcelasConLectura.reduce(function (total, p) { return total + Number(p.ultima.humedad); }, 0) /
+parcelasConLectura.length, ) : null; const resumenRecomendaciones = parcelas.reduce(function (acc, p) {
+acc[p.recomendacion.cls] = (acc[p.recomendacion.cls] || 0) + 1; return acc; }, {}); %>
+
+<section class="panel-hero">
+  <div>
+    <p class="panel-hero__saludo">Hola, <%= usuario.nombre %></p>
+    <h1>Mi resumen</h1>
+    <p>Revisa tus recomendaciones, alertas y pronóstico en un solo lugar.</p>
+  </div>
+  <div class="panel-hero__acciones">
+    <a class="boton" href="/panel/parcelas/nueva">Nueva parcela</a>
+  </div>
+</section>
+
+<!-- Indicadores principales -->
+<section class="panel-seccion panel-seccion--compacta" aria-label="Indicadores de mi panel">
+  <section class="rejilla-metricas">
+    <article class="metrica metrica--azul">
+      <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/mapa') %></span>
+      <span class="metrica__valor"><%= parcelas.length %></span>
+      <span class="metrica__etiqueta">Parcelas registradas</span>
+    </article>
+    <article class="metrica metrica--cian">
+      <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/gota') %></span>
+      <span class="metrica__valor"><%= parcelasConLectura.length %></span>
+      <span class="metrica__etiqueta">Parcelas con lecturas</span>
+    </article>
+    <article class="metrica metrica--morado">
+      <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/termometro') %></span>
+      <span class="metrica__valor"><%= humedadPromedio === null ? '—' : humedadPromedio + ' %' %></span>
+      <span class="metrica__etiqueta">Humedad promedio</span>
+    </article>
+    <article class="metrica metrica--naranja">
+      <span class="metrica__icono" aria-hidden="true"><%- include('../iconos/alerta') %></span>
+      <span class="metrica__valor"><%= alertas.length %></span>
+      <span class="metrica__etiqueta">Alertas próximas</span>
+    </article>
+  </section>
+
+  <section class="rejilla-metrica-degradado">
+    <% const labels = [
+      { cls: 'ok', titulo: 'Listas para sembrar', icono: 'check', color: '1' },
+      { cls: 'mid', titulo: 'Con precaución', icono: 'alerta', color: '2' },
+      { cls: 'bad', titulo: 'Esperar', icono: 'cerrar', color: '3' },
+      { cls: 'none', titulo: 'Sin datos', icono: 'info', color: '4' }
+    ]; %>
+    <% labels.forEach(function (item) { %>
+    <article class="metrica-degradado metrica-degradado--<%= item.color %>">
+      <span class="metrica-degradado__icono" aria-hidden="true"><%- include(`../iconos/${item.icono}`) %></span>
+      <span class="metrica-degradado__valor"><%= resumenRecomendaciones[item.cls] || 0 %></span>
+      <span class="metrica-degradado__etiqueta"><%= item.titulo %></span>
+    </article>
+    <% }) %>
+  </section>
+</section>
+
+<!-- Seguimiento de parcelas -->
+<section class="panel-seccion" aria-labelledby="titulo-mis-parcelas">
+  <div class="panel-seccion__cabecera">
+    <div>
+      <p class="etiqueta">Seguimiento</p>
+      <h2 id="titulo-mis-parcelas">Mis parcelas</h2>
+    </div>
+    <p class="tenue"><%= parcelas.length %> parcela<%= parcelas.length === 1 ? '' : 's' %> en seguimiento</p>
+  </div>
+
+  <% if (!parcelas.length) { %>
+  <section class="tarjeta centrada">
+    <h2>Aún no tienes parcelas</h2>
+    <p class="tenue">Crea tu primera parcela para empezar a registrar la humedad y la temperatura del suelo.</p>
+    <a class="boton" href="/panel/parcelas/nueva">Crear parcela</a>
+  </section>
+  <% } else { %>
+  <div class="rejilla rejilla--parcelas">
+    <% parcelas.forEach(function (p) { %>
+    <article class="tarjeta parcela">
+      <div class="parcela__cabecera">
+        <div>
+          <h2><a href="/panel/parcelas/<%= p.id %>"><%= p.nombre %></a></h2>
+          <p class="tenue"><%= p.cultivo %> · <%= p.zona_nombre %><% if (p.distrito) { %> · <%= p.distrito %><% } %></p>
+        </div>
+        <span class="insignia parcela__estado parcela__estado--<%= p.recomendacion.cls %>"><%= t(p.recomendacion.titulo) %></span>
+      </div>
+      <p class="recomendacion recomendacion--<%= p.recomendacion.cls %>">
+        <span><%= p.recomendacion.motivos.map((motivo) => t(motivo)).join(' ') %></span>
+      </p>
+      <p class="condiciones-resumen">
+        <%= t('condiciones.resumenParcela', {
+          veredicto: t(p.recomendacion.titulo),
+          confianza: t(`condiciones.confianza.${p.condiciones.confianza}`),
+          ventana: p.recomendacion.mejorVentana
+            ? t('condiciones.ventanaResumen', {
+              inicio: fecha(p.recomendacion.mejorVentana.inicio),
+              fin: fecha(p.recomendacion.mejorVentana.fin),
+            })
+            : t('condiciones.sinVentanaResumen'),
+        }) %>
+      </p>
+      <% if (p.ultima) { %>
+      <dl class="datos">
+        <div>
+          <dt>Humedad</dt>
+          <dd><%= Number(p.ultima.humedad) %> %</dd>
+        </div>
+        <div>
+          <dt>Temperatura</dt>
+          <dd><%= Number(p.ultima.temperatura) %> °C</dd>
+        </div>
+      </dl>
+      <p class="tenue">Última lectura: <%= fecha(p.ultima.fecha) %> (<%= p.ultima.fuente_nombre %>)</p>
+      <% } else { %>
+      <p class="tenue">Sin lecturas todavía.</p>
+      <% } %> <% if (!p.datosExternos.disponibles) { %>
+      <p class="aviso aviso-aviso" role="status">
+        Datos NASA POWER no disponibles. Las últimas cifras guardadas se conservan, <% if
+        (p.datosExternos.fechaUltimoDato) { %> última lectura: <%= fecha(p.datosExternos.fechaUltimoDato) %>. <% } else
+        { %> todavía no hay una lectura. <% } %>
+      </p>
+      <% } %> <% if (p.ultima && p.ultima.fuente === 'nasa_power') { %>
+      <p class="tenue">
+        NASA POWER: GWETROOT es un índice de humedad radicular expresado en porcentaje; TS es temperatura superficial
+        estimada. No son mediciones directas de humedad volumétrica ni de temperatura a profundidad.
+      </p>
+      <% } %>
+      <h3 class="parcela__subtitulo"><%= t('condiciones.pronosticoTitulo') %></h3>
+      <% if (p.pronostico.disponible) { %>
+      <ul class="condiciones-pronostico__dias">
+        <% p.pronostico.dias.forEach((dia) => { %>
+        <li class="condiciones-pronostico__dia condiciones-pronostico__dia--<%= dia.estado %>">
+          <strong><%= fecha(dia.fecha) %></strong>
+          <span class="condiciones-pronostico__estado">
+            <%= t(`condiciones.dia.${dia.estado === 'helada' ? 'helada' : dia.estado === 'lluvia' ? 'lluvia' : dia.estado === 'bueno' ? 'bueno' : 'sinDatos'}`) %>
+          </span>
+          <% if (dia.temperaturaMinima !== null) { %>
+            <span><%= t('condiciones.minima', { valor: dia.temperaturaMinima }) %></span>
+          <% } %>
+          <% if (dia.precipitacionMm !== null) { %>
+            <span><%= t('condiciones.lluvia', { valor: dia.precipitacionMm }) %></span>
+          <% } %>
+          <% if (dia.humedadSuelo !== null) { %>
+            <span><%= t('condiciones.humedadPrevista', { valor: dia.humedadSuelo }) %></span>
+          <% } %>
+        </li>
+        <% }) %>
+      </ul>
+      <% } else { %>
+      <p class="tenue"><%= t('condiciones.sinPronostico') %></p>
+      <% } %>
+      <div class="parcela__pie">
+        <a class="boton boton-secundario" href="/panel/parcelas/<%= p.id %>">Ver parcela y lecturas</a>
+        <!-- Semáforo de estado -->
+        <span class="semaphorio semaphorio--<%= p.recomendacion.cls %>" aria-hidden="true">
+          <span class="semaphorio__izquierda"></span>
+        </span>
+      </div>
+    </article>
+    <% }) %>
+  </div>
+  <% } %>
+</section>
+
+<!-- Alertas -->
+<section class="panel-seccion" aria-labelledby="titulo-alertas">
+  <div class="panel-seccion__cabecera">
+    <div>
+      <p class="etiqueta">Atención</p>
+      <h2 id="titulo-alertas">Próximas alertas</h2>
+    </div>
+    <span class="insignia insignia-aviso"><%= alertas.length %> pendiente<%= alertas.length === 1 ? '' : 's' %></span>
+  </div>
+  <% if (alertas.length) { %>
+  <ul class="lista-registros">
+    <% alertas.forEach((alerta) => { %>
+    <li>
+      <a href="/panel/parcelas/<%= alerta.parcela_id %>"><strong><%= alerta.parcela %></strong></a>
+      · <%= alerta.mensaje %>
+      <span class="tenue"> — <%= fechaHora(alerta.fecha) %></span>
+    </li>
+    <% }) %>
+  </ul>
+  <% } else { %>
+  <p class="estado-vacio">No tienes alertas próximas.</p>
+  <% } %>
+</section>
+
+<!-- Recomendaciones -->
+<section class="panel-seccion" aria-labelledby="titulo-estado-parcelas">
+  <div class="panel-seccion__cabecera">
+    <div>
+      <p class="etiqueta">Recomendaciones</p>
+      <h2 id="titulo-estado-parcelas">Estado de tus parcelas</h2>
+    </div>
+  </div>
+  <div class="rejilla-metrica-degradado">
+    <article class="metrica-degradado metrica-degradado--1">
+      <span class="metrica-degradado__icono" aria-hidden="true"><%- include('../iconos/check') %></span>
+      <span class="metrica-degradado__valor"><%= resumenRecomendaciones.ok || 0 %></span>
+      <span class="metrica-degradado__etiqueta">Listas para sembrar</span>
+    </article>
+    <article class="metrica-degradado metrica-degradado--2">
+      <span class="metrica-degradado__icono" aria-hidden="true"><%- include('../iconos/alerta') %></span>
+      <span class="metrica-degradado__valor"><%= resumenRecomendaciones.mid || 0 %></span>
+      <span class="metrica-degradado__etiqueta">Con precaución</span>
+    </article>
+    <article class="metrica-degradado metrica-degradado--3">
+      <span class="metrica-degradado__icono" aria-hidden="true"><%- include('../iconos/cerrar') %></span>
+      <span class="metrica-degradado__valor"><%= resumenRecomendaciones.bad || 0 %></span>
+      <span class="metrica-degradado__etiqueta">Esperar</span>
+    </article>
+    <article class="metrica-degradado metrica-degradado--4">
+      <span class="metrica-degradado__icono" aria-hidden="true"><%- include('../iconos/info') %></span>
+      <span class="metrica-degradado__valor"><%= resumenRecomendaciones.none || 0 %></span>
+      <span class="metrica-degradado__etiqueta">Sin datos</span>
+    </article>
+  </div>
+</section>
+
+<%- include('../partials/foot') %>

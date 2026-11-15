@@ -1,0 +1,341 @@
+<%- include('../partials/head') %>
+
+<div class="calendario-intro">
+  <header class="barra-titulo pagina-publica__encabezado">
+    <div>
+      <p class="etiqueta"><%= t('calendario.etiqueta') %></p>
+      <h1><%= t('calendario.tituloPagina') %></h1>
+      <p class="tenue"><%= t('calendario.introduccion') %></p>
+    </div>
+  </header>
+
+  <section class="tarjeta tarjeta--hundida calendario-filtros" aria-labelledby="titulo-filtros-calendario">
+    <h2 id="titulo-filtros-calendario"><%= t('calendario.cultivoTitulo') %></h2>
+    <form
+      id="calendario-formulario"
+      action="/calendario"
+      method="get"
+      class="formulario formulario--calendario"
+      data-calendario-punto
+      data-url="/calendario"
+      data-geocodificar="/api/publico/geocodificar"
+      data-lat-min="-18.5"
+      data-lat-max="0.1"
+      data-lon-min="-81.5"
+      data-lon-max="-68.5"
+      data-busqueda-corta="<%= t('calendario.punto.busquedaCorta') %>"
+      data-sin-resultados="<%= t('calendario.punto.sinResultados') %>"
+      data-busqueda-error="<%= t('calendario.punto.busquedaError') %>"
+      data-fuera-de-peru="<%= t('calendario.punto.fueraDePeru') %>"
+      data-buscando="<%= t('calendario.punto.buscando') %>"
+      data-ubicacion-buscando="<%= t('calendario.punto.ubicacionBuscando') %>"
+      data-ubicacion-error="<%= t('calendario.punto.ubicacionError') %>"
+      data-coordenadas-invalidas="<%= t('calendario.punto.coordenadasInvalidas') %>"
+      data-punto-elegido="<%= t('calendario.punto.elegido') %>"
+      data-mapa-error="<%= t('calendario.punto.mapaError') %>"
+      data-mapa-atribucion="<%= t('calendario.punto.atribucionMapa') %>"
+    >
+      <% if (punto) { %>
+        <input type="hidden" name="lat" id="calendario-lat" value="<%= Number(punto.latitud).toFixed(2) %>">
+        <input type="hidden" name="lon" id="calendario-lon" value="<%= Number(punto.longitud).toFixed(2) %>">
+      <% } else { %>
+        <input type="hidden" name="lat" id="calendario-lat">
+        <input type="hidden" name="lon" id="calendario-lon">
+      <% } %>
+
+      <fieldset class="calendario-cultivo">
+        <legend><%= t('calendario.cultivoLabel') %></legend>
+        <label for="calendario-cultivo" class="u-sr-only"><%= t('calendario.cultivoLabel') %></label>
+        <select id="calendario-cultivo" name="cultivo">
+          <option value=""><%= t('calendario.elegirCultivo') %></option>
+          <% cultivos.forEach((opcion) => { %>
+            <option value="<%= opcion.slug %>" <%= cultivo && cultivo.slug === opcion.slug ? 'selected' : '' %>><%= opcion.nombre %></option>
+          <% }) %>
+        </select>
+        <label for="calendario-otro"><%= t('calendario.otroCultivoLabel') %>
+          <input
+            id="calendario-otro"
+            name="otro"
+            type="text"
+            maxlength="60"
+            autocomplete="off"
+            value="<%= otroCultivo || "" %>"
+            placeholder="<%= t('calendario.otroCultivoEjemplo') %>"
+          >
+        </label>
+        <p class="nota-publica"><%= t('calendario.cultivoNota') %></p>
+      </fieldset>
+
+      <div class="calendario-filtros__acciones">
+        <button class="boton" type="submit"><%= t('calendario.consultar') %></button>
+        <p class="formulario__estado" data-calendario-error role="status" hidden></p>
+      </div>
+
+      <% if (punto) { %>
+        <p class="calendario-punto__resumen">
+          <%= t('calendario.punto.elegido') %>:
+          <strong><%= Number(punto.latitud).toFixed(2) %>, <%= Number(punto.longitud).toFixed(2) %></strong>
+          <% if (comunidadDatos) { %> · <%= comunidadDatos.nombre %><% } %>
+        </p>
+      <% } %>
+    </form>
+
+    <%# Selector de distrito: solo un atajo opcional al punto de la comunidad. %>
+    <details class="calendario-atajo" <%= !punto && distrito ? "open" : "" %>>
+      <summary><%= t('calendario.atajoTitulo') %></summary>
+      <p class="nota-publica"><%= t('calendario.atajoDescripcion') %></p>
+      <% if (punto) { %>
+        <p class="nota-publica"><%= t('calendario.atajoAvisoPunto') %></p>
+      <% } %>
+      <form action="/calendario" method="get" class="formulario formulario--calendario" data-atajo-distrito>
+        <% if (cultivo && cultivo.slug) { %>
+          <input type="hidden" name="cultivo" value="<%= cultivo.slug %>">
+        <% } else if (otroCultivo) { %>
+          <input type="hidden" name="otro" value="<%= otroCultivo %>">
+        <% } %>
+        <label for="calendario-departamento"><%= t('calendario.departamento') %>
+          <select id="calendario-departamento" name="departamento">
+            <option value=""><%= t('calendario.elegirDepartamento') %></option>
+            <% departamentos.forEach((opcion) => { %>
+              <option value="<%= opcion.id %>" <%= departamento && departamento.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label for="calendario-provincia"><%= t('calendario.provincia') %>
+          <select id="calendario-provincia" name="provincia">
+            <option value=""><%= t('calendario.elegirProvincia') %></option>
+            <% provincias.forEach((opcion) => { %>
+              <option value="<%= opcion.id %>" <%= provincia && provincia.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label for="calendario-distrito"><%= t('calendario.distrito') %>
+          <select id="calendario-distrito" name="distrito">
+            <option value=""><%= t('calendario.elegirDistrito') %></option>
+            <% distritos.forEach((opcion) => { %>
+              <option value="<%= opcion.id %>" <%= distrito && distrito.id === opcion.id ? 'selected' : '' %>><%= opcion.nombre %></option>
+            <% }) %>
+          </select>
+        </label>
+        <button class="boton boton--secundario" type="submit"><%= t('calendario.consultar') %></button>
+      </form>
+    </details>
+  </section>
+</div>
+
+<% if (!cultivo) { %>
+  <section class="vacio seccion-publica">
+    <h2><%= t('calendario.sinCultivoTitulo') %></h2>
+    <p><%= t('calendario.sinCultivoTexto') %></p>
+    <a class="boton boton--secundario" href="/cultivos"><%= t('calendario.verCultivos') %></a>
+  </section>
+<% } %>
+
+<% if (cultivo && !punto) { %>
+  <%# Tarjeta "Elige tu punto": reemplaza al antiguo aviso amarillo. %>
+  <section class="tarjeta calendario-punto" id="calendario-punto" aria-labelledby="titulo-calendario-punto">
+    <h2 id="titulo-calendario-punto"><%= t('calendario.punto.titulo') %></h2>
+    <p><%= t('calendario.punto.introduccion') %></p>
+    <p class="nota-publica"><%= t('calendario.punto.geolocalizacionAviso') %></p>
+
+    <div class="calendario-punto__opciones">
+      <section class="calendario-punto__opcion" aria-labelledby="punto-buscador-titulo">
+        <h3 id="punto-buscador-titulo"><%= t('calendario.punto.buscadorTitulo') %></h3>
+        <label for="calendario-busqueda"><%= t('calendario.punto.buscadorEtiqueta') %></label>
+        <input
+          id="calendario-busqueda"
+          type="search"
+          autocomplete="off"
+          minlength="2"
+          maxlength="80"
+          placeholder="<%= t('calendario.punto.buscadorEjemplo') %>"
+          aria-autocomplete="list"
+          aria-controls="calendario-resultados"
+          aria-describedby="calendario-busqueda-estado"
+        >
+        <p id="calendario-busqueda-estado" class="calendario-punto__estado" role="status" hidden></p>
+        <ul id="calendario-resultados" class="calendario-punto__resultados" role="listbox" aria-label="<%= t('calendario.punto.buscadorResultados') %>"></ul>
+      </section>
+
+      <section class="calendario-punto__opcion" aria-labelledby="punto-ubicacion-titulo">
+        <h3 id="punto-ubicacion-titulo"><%= t('calendario.punto.ubicacionTitulo') %></h3>
+        <p class="nota-publica"><%= t('calendario.punto.ubicacionPorque') %></p>
+        <button class="boton boton--secundario" type="button" id="calendario-usar-ubicacion">
+          <%= t('calendario.punto.usarUbicacion') %>
+        </button>
+        <p class="calendario-punto__estado" id="calendario-ubicacion-estado" role="status" hidden></p>
+      </section>
+
+      <section class="calendario-punto__opcion calendario-punto__opcion--mapa" aria-labelledby="punto-mapa-titulo">
+        <h3 id="punto-mapa-titulo"><%= t('calendario.punto.mapaTitulo') %></h3>
+        <p class="nota-publica"><%= t('calendario.punto.mapaInstruccion') %></p>
+        <%# Leaflet y las teselas solo se cargan al pulsar: nada de terceros antes. %>
+        <button class="boton boton--secundario" type="button" id="calendario-cargar-mapa">
+          <%= t('calendario.punto.mostrarMapa') %>
+        </button>
+        <div
+          id="calendario-mapa"
+          class="calendario-punto__mapa"
+          role="application"
+          aria-label="<%= t('calendario.punto.mapaAccesible') %>"
+        ></div>
+      </section>
+
+      <section class="calendario-punto__opcion" aria-labelledby="punto-manual-titulo">
+        <h3 id="punto-manual-titulo"><%= t('calendario.punto.manualTitulo') %></h3>
+        <label for="calendario-lat-manual"><%= t('calendario.punto.latitud') %>
+          <input id="calendario-lat-manual" type="number" inputmode="decimal" step="0.01" min="-18.5" max="0.1" placeholder="-13.53">
+        </label>
+        <label for="calendario-lon-manual"><%= t('calendario.punto.longitud') %>
+          <input id="calendario-lon-manual" type="number" inputmode="decimal" step="0.01" min="-81.5" max="-68.5" placeholder="-71.98">
+        </label>
+        <button class="boton" type="button" id="calendario-usar-manual">
+          <%= t('calendario.punto.usarManual') %>
+        </button>
+        <p class="calendario-punto__estado" id="calendario-manual-estado" role="status" hidden></p>
+      </section>
+    </div>
+
+    <p class="calendario-punto__estado" id="calendario-punto-estado" role="status" hidden></p>
+
+    <% if (distritosConCoordenadas.length) { %>
+      <div class="tarjeta tarjeta--hundida" aria-labelledby="titulo-distritos-nasa">
+        <p id="titulo-distritos-nasa"><%= t('calendario.punto.atajosComunidad') %></p>
+        <ul class="lista-tarjetas">
+          <% distritosConCoordenadas.slice(0, 6).forEach((opcion) => { %>
+            <li>
+              <a class="boton boton--secundario" href="<%= opcion.url %>">
+                <%= opcion.distrito %> · <%= opcion.nombre %>
+              </a>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+  </section>
+<% } %>
+
+<% if (cultivo && punto) { %>
+  <% if (resultado) { %>
+    <section class="seccion-publica" aria-labelledby="titulo-resultado-siembra">
+      <div class="barra-titulo">
+        <div>
+          <p class="etiqueta">
+            <%= cultivo.nombre %>
+            <% if (distrito) { %> · <%= distrito.nombre %>, <%= distrito.provincia %><% } else if (provincia) { %> · <%= provincia.nombre %><% } else if (punto) { %> · <%= t('calendario.resultado.punto') %> <%= Number(punto.latitud).toFixed(2) %>, <%= Number(punto.longitud).toFixed(2) %><% } %>
+          </p>
+          <h2 id="titulo-resultado-siembra"><%= t('calendario.resultado.titulo') %></h2>
+        </div>
+        <a class="boton boton--secundario" href="<%= urlCompartir %>"><%= t('calendario.resultado.compartir') %></a>
+      </div>
+
+      <p class="tarjeta tarjeta--hundida calendario-referencia">
+        <strong><%= t('calendario.resultado.referencia') %></strong>
+        · <%= t('calendario.resultado.punto') %>: <%= Number(punto.latitud).toFixed(2) %>, <%= Number(punto.longitud).toFixed(2) %>
+      </p>
+
+      <% if (resultado.rangos.origen === "ia") { %>
+        <p class="aviso aviso-aviso" role="note"><%= t('calendario.resultado.estimadoIA') %></p>
+      <% } %>
+
+      <p class="nota-publica">
+        <%= t('calendario.resultado.confianza') %>:
+        <strong><%= t(`calendario.resultado.confianza${resultado.confianza === "media" ? "Media" : "Baja"}`) %></strong>
+        · <%= t('calendario.resultado.rangos') %>:
+        <%= resultado.rangos.humedadMin %>–<%= resultado.rangos.humedadMax %> % ·
+        <%= resultado.rangos.tempMin %>–<%= resultado.rangos.tempMax %> °C
+      </p>
+
+      <div class="rejilla tarjetas-recomendacion">
+        <% resultado.ventanas.forEach((ventana) => { %>
+          <article class="tarjeta tarjeta-recomendacion tarjeta-recomendacion--<%= ventana.puntaje >= 70 ? "precaucion" : ventana.puntaje >= 40 ? "precaucion" : "esperar" %>">
+            <p class="etiqueta"><%= t('calendario.resultado.ventana') %> <%= ventana.orden %></p>
+            <h3><%= ventana.inicio %> — <%= ventana.fin %></h3>
+            <ul>
+              <li><%= t('calendario.resultado.puntajeVentana', { puntaje: ventana.puntaje }) %></li>
+              <% if (ventana.humedad !== null) { %><li><%= t('calendario.resultado.humedadRef') %>: <%= ventana.humedad %> %</li><% } %>
+              <% if (ventana.temperatura !== null) { %><li><%= t('calendario.resultado.temperaturaRef') %>: <%= ventana.temperatura %> °C</li><% } %>
+              <% if (ventana.cosecha) { %>
+                <li><%= t('calendario.resultado.cosecha') %>: <%= ventana.cosecha.inicio %> — <%= ventana.cosecha.fin %> (<%= t('calendario.resultado.cicloDias', { dias: ventana.cosecha.diasCiclo }) %>)</li>
+              <% } else { %>
+                <li><%= t('calendario.resultado.sinCiclo') %></li>
+              <% } %>
+              <li>
+                <%= t('calendario.resultado.riesgos') %>:
+                <% if (ventana.riesgos.helada) { %><%= t('calendario.resultado.riesgoHelada') %><% } %>
+                <% if (ventana.riesgos.humedadBaja) { %><%= t('calendario.resultado.riesgoHumedad') %><% } %>
+                <% if (!ventana.riesgos.helada && !ventana.riesgos.humedadBaja) { %><%= t('calendario.resultado.sinRiesgos') %><% } %>
+              </li>
+            </ul>
+          </article>
+        <% }) %>
+      </div>
+
+      <div class="tarjeta tarjeta--hundida">
+        <h3><%= t('calendario.resultado.explicacionTitulo') %></h3>
+        <p><%= redaccion %></p>
+        <p class="nota-publica">
+          <span class="insignia <%= redaccionGeneradaConIA ? "insignia-ok" : "insignia-aviso" %>">
+            <%= redaccionGeneradaConIA ? t('calendario.resultado.insigniaIA') : t('calendario.resultado.insigniaPlantilla') %>
+          </span>
+          · <%= t('calendario.resultado.fuente') %>: <%= resultado.fuente %>
+          <% if (resultado.fechaDatos) { %> · <%= t('calendario.resultado.fechaDatos') %>: <time datetime="<%= resultado.fechaDatos %>"><%= fecha(resultado.fechaDatos) %></time><% } %>
+        </p>
+        <% if (ventanaTradicional && ventanaTradicional.texto) { %>
+          <p class="nota-publica">
+            <%= t('calendario.resultado.calendarioTradicional') %>: <%= ventanaTradicional.texto %>
+            (<%= ventanaTradicional.validado ? t('calendario.resultado.validado') : t('calendario.resultado.referencial') %>)
+          </p>
+        <% } %>
+      </div>
+    </section>
+  <% } else { %>
+    <section class="seccion-publica" aria-labelledby="titulo-sin-resultado">
+      <h2 id="titulo-sin-resultado"><%= t('calendario.resultado.sinDatosTitulo') %></h2>
+      <p class="aviso aviso-aviso" role="status">
+        <% if (estadoDatos === "sin_datos_cultivo") { %>
+          <%= t('calendario.resultado.sinDatosCultivo', { cultivo: cultivo.nombre }) %>
+        <% } else if (estadoDatos === "no_disponibles") { %>
+          <%= t('calendario.resultado.nasaNoDisponible') %>
+        <% } else { %>
+          <%= t('calendario.resultado.sinDatos') %>
+        <% } %>
+      </p>
+      <p class="nota-publica">
+        <strong><%= t('calendario.resultado.referencia') %></strong>
+        <% if (ultimaLectura) { %>
+          · <%= t('calendario.resultado.ultimaLectura') %>:
+          <time datetime="<%= ultimaLectura.fecha %>"><%= fecha(ultimaLectura.fecha) %></time>
+        <% } %>
+      </p>
+      <a class="boton boton--secundario" href="/calendario?<%= cultivo.slug ? `cultivo=${cultivo.slug}` : "" %>"><%= t('calendario.resultado.elegirOtroPunto') %></a>
+    </section>
+  <% } %>
+
+  <% if (calendario.length) { %>
+    <section class="seccion-publica" aria-labelledby="titulo-ventana">
+      <h2 id="titulo-ventana"><%= t('calendario.tradicionalTitulo') %></h2>
+      <div class="tabla-scroll" role="region" aria-label="<%= t('calendario.tradicionalTitulo') %>" tabindex="0">
+        <table>
+          <caption class="u-sr-only"><%= t('calendario.tradicionalCaption', { cultivo: cultivo.nombre }) %></caption>
+          <thead><tr><th scope="col"><%= t('calendario.zona') %></th><th scope="col"><%= t('calendario.meses') %></th><th scope="col"><%= t('calendario.validacion') %></th></tr></thead>
+          <tbody>
+            <% calendario.forEach((fila) => { %>
+              <tr>
+                <th scope="row"><%= fila.zona_nombre %></th>
+                <td><%= fila.ventana.texto %></td>
+                <td><span class="insignia <%= fila.validado ? "insignia-ok" : "insignia-aviso" %>"><%= fila.validado ? t('calendario.resultado.validado') : t('calendario.resultado.referencial') %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="nota-publica"><%= t('calendario.tradicionalNota') %></p>
+    </section>
+  <% } %>
+<% } %>
+
+<%# Resumen para el modo sin conexión de la PWA (ver public/js/pwa.js). %>
+<script id="datos-calendario" type="application/json"><%- JSON.stringify(resumenOffline || {}).replace(/</g, "\\u003c") %></script>
+
+<%- include('../partials/foot') %>

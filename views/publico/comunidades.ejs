@@ -1,0 +1,41 @@
+<%- include('../partials/head') %>
+
+<header class="pagina-publica__encabezado">
+  <p class="etiqueta">Territorio</p>
+  <h1>Comunidades agrícolas</h1>
+  <p class="tenue">Lugares que participan en el intercambio de conocimientos de Siembra Andina.</p>
+</header>
+
+<section class="seccion-publica" aria-labelledby="titulo-mapa">
+  <h2 id="titulo-mapa">Mapa de comunidades</h2>
+  <% if (marcadores.length) { %>
+    <div
+      id="mapa-comunidades"
+      class="mapa-comunidades"
+      role="region"
+      aria-label="Mapa interactivo con ubicaciones aproximadas de comunidades"
+      data-comunidades="<%= JSON.stringify(marcadores) %>"
+    ></div>
+    <p class="nota-publica">Las ubicaciones se muestran de forma aproximada. El mapa requiere conexión para cargar las teselas de OpenStreetMap.</p>
+  <% } else { %>
+    <div class="vacio"><p>Aún no hay comunidades con coordenadas registradas para mostrar en el mapa.</p></div>
+  <% } %>
+</section>
+
+<section class="seccion-publica" aria-labelledby="titulo-lista-comunidades">
+  <h2 id="titulo-lista-comunidades">Comunidades registradas</h2>
+  <% if (comunidades.length) { %>
+    <ul class="lista-tarjetas">
+      <% comunidades.forEach((comunidad) => { %>
+        <li class="tarjeta">
+          <h3><%= comunidad.nombre %></h3>
+          <p class="tenue"><%= comunidad.distrito %>, <%= comunidad.provincia %>, <%= comunidad.departamento %></p>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <div class="vacio"><p>No hay comunidades publicadas todavía.</p></div>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

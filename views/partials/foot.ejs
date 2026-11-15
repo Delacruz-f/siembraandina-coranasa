@@ -1,0 +1,80 @@
+<%# Cierre del layout reutilizable. Aquí se cierran main, panel, body y html. %>
+  </main>
+<% if (tipoLayout === "panel") { %>
+    </div><%# cierra .panel-cuerpo %>
+  </div><%# cierra .app-panel %>
+  <nav class="nav-inferior" aria-label="Navegación de panel">
+    <% enlacesPanel.filter((enlace) => enlace.href !== "/guia-estilo").forEach((enlace) => { %>
+      <a href="<%= enlace.href %>" <%= rutaLayout === enlace.href || rutaLayout.startsWith(`${enlace.href}/`) ? 'aria-current="page"' : "" %>>
+        <%- include(`../iconos/${enlace.icono}`) %><span><%= t(enlace.clave) %></span>
+      </a>
+    <% }) %>
+  </nav>
+<% } else if (tipoLayout === "auth") { %>
+  <footer class="pie-auth">
+    <p class="pie-auth__texto"><%= t("app.nombre") %> · <%= anio %></p>
+    <a class="pie-auth__enlace" href="/"><%= t("pie.volverInicio") %></a>
+  </footer>
+<% } else { %>
+  <footer class="pie-publico">
+    <div class="pie-publico__interior">
+      <div class="pie-publico__marca">
+        <span class="marca__icono marca__icono--pie"><%- include("../iconos/brote") %></span>
+        <div>
+          <strong><%= t("app.nombre") %></strong>
+          <p class="pie-publico__nota"><%= t("pie.nota") %></p>
+        </div>
+      </div>
+      <nav class="pie-publico__grid" aria-label="<%= t('pie.enlaces') %>">
+        <div class="pie-publico__col">
+          <span class="pie-publico__titulo"><%= t("pie.plataforma") %></span>
+          <a href="/"><%= t("nav.inicio") %></a>
+          <a href="/consulta"><%= t("nav.consultaLugar") %></a>
+          <a href="/monitor"><%= t("nav.monitorHumedad") %></a>
+          <a href="/siembras"><%= t("nav.siembrasPeru") %></a>
+        </div>
+        <div class="pie-publico__col">
+          <span class="pie-publico__titulo"><%= t("pie.recursos") %></span>
+          <a class="pie-publico__discreto" href="/api/docs"><%= t("pie.desarrolladores") %></a>
+          <a href="/sobre#privacidad"><%= t("pie.privacidad") %></a>
+        </div>
+        <div class="pie-publico__col pie-publico__col--contacto">
+          <span class="pie-publico__titulo"><%= t("pie.contacto") %></span>
+          <a href="/contacto"><%= t("pie.contacto") %></a>
+          <a
+            class="pie-publico__contacto-enlace"
+            href="tel:+51904436962"
+            aria-label="<%= t('sobre.telefonoAria', { telefono: t('sobre.telefono') }) %>"
+          >
+            <%- include("../iconos/telefono") %>
+            <span><%= t("sobre.telefono") %></span>
+          </a>
+          <a
+            class="pie-publico__contacto-enlace"
+            href="https://www.linkedin.com/in/david-delacruz-466b4644b"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="<%= t('sobre.linkedinAria') %>"
+          >
+            <%- include("../iconos/linkedin") %>
+            <span><%= t("sobre.linkedin") %></span>
+          </a>
+          <span
+            class="pie-publico__contacto-pendiente pie-publico__discreto"
+            aria-label="<%= t('sobre.githubAria') %>"
+          >
+            <%- include("../iconos/github") %>
+            <span><%= t("sobre.githubPendiente") %></span>
+          </span>
+        </div>
+      </nav>
+    </div>
+    <div class="pie-publico__base">
+      <span><%= t("app.nombre") %> · <%= anio %></span>
+      <a href="/contacto"><%= t("pie.contacto") %></a>
+    </div>
+  </footer>
+<% } %>
+  <script src="/js/confirmaciones.js" defer></script>
+  </body>
+</html>

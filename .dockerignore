@@ -1,0 +1,17 @@
+node_modules
+coverage
+storage
+public/uploads
+*.log
+.git
+.gitignore
+.husky
+.env
+.env.*
+!.env.example
+tests
+docs
+tmp-*
+README.md
+Dockerfile
+docker-compose*.yml

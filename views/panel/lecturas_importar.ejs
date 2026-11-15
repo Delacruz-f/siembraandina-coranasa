@@ -1,0 +1,65 @@
+<%- include('../partials/head', { titulo: 'Importar lecturas' }) %>
+
+<p class="etiqueta"><a href="/panel/parcelas/<%= parcela.id %>"><%= parcela.nombre %></a></p>
+<h1>Importar lecturas desde CSV</h1>
+<p class="tenue">Usa un archivo UTF-8 con cabeceras <code>fecha,humedad,temperatura,observacion</code>. La fecha debe ser AAAA-MM-DD; humedad, un porcentaje de 0 a 100; temperatura, de -30 a 60 °C. Se admiten hasta 1 000 filas.</p>
+
+<section class="tarjeta">
+  <form
+    id="form-importar-csv"
+    method="post"
+    action="/panel/parcelas/<%= parcela.id %>/lecturas/importar/previsualizar"
+    enctype="multipart/form-data"
+    class="formulario"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Archivo CSV
+      <input type="file" name="archivo" accept=".csv,text/csv" required>
+    </label>
+    <button class="boton" type="submit">Revisar archivo</button>
+    <p id="estado-importacion" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
+<% if (importacion) { %>
+  <section class="tarjeta">
+    <h2>Vista previa</h2>
+    <p><strong><%= importacion.validas.length %></strong> lecturas válidas; <strong><%= importacion.errores.length %></strong> filas con errores.</p>
+    <% if (importacion.errores.length) { %>
+      <h3>Errores por fila</h3>
+      <ul>
+        <% importacion.errores.forEach((error) => { %>
+          <li>Fila <%= error.linea %>: <%= error.mensaje %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+    <% if (importacion.validas.length) { %>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Fila</th><th>Fecha</th><th>Humedad</th><th>Temperatura</th><th>Observación</th></tr></thead>
+          <tbody>
+            <% importacion.validas.forEach((fila) => { %>
+              <tr>
+                <td><%= fila.linea %></td>
+                <td><%= fila.fecha %></td>
+                <td><%= fila.humedad %> %</td>
+                <td><%= fila.temperatura %> °C</td>
+                <td><%= fila.observacion || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <form method="post" action="/panel/parcelas/<%= parcela.id %>/lecturas/importar/confirmar" class="u-mt-4">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="token" value="<%= importacion.token %>">
+        <button class="boton" type="submit">Importar <%= importacion.validas.length %> lecturas válidas</button>
+      </form>
+    <% } else { %>
+      <p class="aviso aviso-error">No hay filas válidas para importar. Corrige el CSV y vuelve a revisarlo.</p>
+    <% } %>
+  </section>
+<% } %>
+
+<script src="/js/lecturas-csv.js" defer></script>
+<%- include('../partials/foot') %>

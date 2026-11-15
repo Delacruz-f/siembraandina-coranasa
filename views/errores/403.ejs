@@ -1,0 +1,23 @@
+<%- include('../partials/head', { titulo: typeof titulo !== 'undefined' ? titulo : 'Acceso denegado' }) %>
+
+<section class="tarjeta estrecha centrada">
+  <p class="codigo-error">403</p>
+  <% if (codigoError === 'correo_no_verificado') { %>
+    <h1>Verifica tu correo</h1>
+    <p class="tenue"><%= mensaje %></p>
+    <form method="post" action="/verificacion/reenvio" class="formulario" class="u-mt-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Correo electrónico
+        <input type="email" name="email" required autocomplete="email" value="<%= typeof correoVerificacion !== 'undefined' ? correoVerificacion : '' %>">
+      </label>
+      <button class="boton" type="submit">Reenviar enlace</button>
+    </form>
+    <p class="u-mt-3"><a href="/">Volver al inicio</a></p>
+  <% } else { %>
+    <h1>No tienes permiso</h1>
+    <p class="tenue"><%= mensaje %></p>
+    <a class="boton" href="/">Volver al inicio</a>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>
