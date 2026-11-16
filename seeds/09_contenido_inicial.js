@@ -1,5 +1,7 @@
 // Variedades y artículos introductorios. Las recomendaciones locales siguen
 // dependiendo del calendario validado por la comunidad y de datos recientes.
+const { insertarYDevolverId } = require("../src/utils/baseDatos");
+
 const VARIEDADES = [
   { cultivo: "papa", nombre: "Yungay", slug: "yungay" },
   { cultivo: "papa", nombre: "Peruanita", slug: "peruanita" },
@@ -66,8 +68,7 @@ const ARTICULOS = [
 async function obtenerPorClave(knex, tabla, datos) {
   const existente = await knex(tabla).where({ slug: datos.slug }).first();
   if (existente) return existente.id;
-  const [id] = await knex(tabla).insert(datos);
-  return id;
+  return insertarYDevolverId(tabla, datos, knex);
 }
 
 exports.seed = async function seed(knex) {
@@ -79,11 +80,15 @@ exports.seed = async function seed(knex) {
       .where({ slug: variedad.slug })
       .first();
     if (!fila) {
-      const [id] = await knex("variedades").insert({
-        nombre: variedad.nombre,
-        slug: variedad.slug,
-        activa: true,
-      });
+      const id = await insertarYDevolverId(
+        "variedades",
+        {
+          nombre: variedad.nombre,
+          slug: variedad.slug,
+          activa: true,
+        },
+        knex,
+      );
       fila = { id };
     }
     const cultivoId = cultivoIdPorSlug.get(variedad.cultivo);
@@ -116,14 +121,18 @@ exports.seed = async function seed(knex) {
       .where({ slug: articulo.slug })
       .first();
     if (!fila) {
-      const [id] = await knex("publicaciones").insert({
-        categoria_id: categoriaIdPorSlug.get(articulo.categoria),
-        estado_id: estado.id,
-        titulo: articulo.titulo,
-        slug: articulo.slug,
-        contenido: articulo.contenido,
-        publicada_en: knex.fn.now(),
-      });
+      const id = await insertarYDevolverId(
+        "publicaciones",
+        {
+          categoria_id: categoriaIdPorSlug.get(articulo.categoria),
+          estado_id: estado.id,
+          titulo: articulo.titulo,
+          slug: articulo.slug,
+          contenido: articulo.contenido,
+          publicada_en: knex.fn.now(),
+        },
+        knex,
+      );
       fila = { id };
     }
 

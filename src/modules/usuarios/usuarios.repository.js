@@ -1,7 +1,10 @@
 // Repositorio de usuarios: única capa que consulta las tablas de usuarios,
 // roles y permisos.
 const { db } = require("../../config/db");
-const { insertarYDevolverId } = require("../../utils/baseDatos");
+const {
+  insertarYDevolverId,
+  operadorBusqueda,
+} = require("../../utils/baseDatos");
 
 // MySQL devuelve los booleanos como 0/1: se normalizan a true/false.
 function normalizarUsuario(usuario) {
@@ -432,8 +435,8 @@ async function listar({ busqueda } = {}) {
   if (busqueda)
     consulta.where((q) =>
       q
-        .where("p.nombre", "like", `%${busqueda}%`)
-        .orWhere("u.email", "like", `%${busqueda}%`),
+        .where("p.nombre", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("u.email", operadorBusqueda(), `%${busqueda}%`),
     );
   const filas = await consulta;
   return filas.map(normalizarUsuario);
@@ -450,8 +453,8 @@ function buscarTecnicos(texto) {
     .andWhereNull("u.deleted_at")
     .andWhere((q) =>
       q
-        .where("p.nombre", "like", `%${texto}%`)
-        .orWhere("u.email", "like", `%${texto}%`),
+        .where("p.nombre", operadorBusqueda(), `%${texto}%`)
+        .orWhere("u.email", operadorBusqueda(), `%${texto}%`),
     )
     .select("u.id", "p.nombre", "u.email", "p.comunidad")
     .limit(20);

@@ -10,7 +10,7 @@ const db = knex({
   connection: env.db.connection,
   pool: {
     min: 0,
-    max: 10,
+    max: env.db.poolMax,
   },
   // En desarrollo ayuda a depurar; en producción no se registra SQL.
   debug: false,

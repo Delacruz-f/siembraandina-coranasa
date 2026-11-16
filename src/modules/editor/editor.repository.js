@@ -1,5 +1,8 @@
 const { db } = require("../../config/db");
-const { insertarYDevolverId } = require("../../utils/baseDatos");
+const {
+  insertarYDevolverId,
+  operadorBusqueda,
+} = require("../../utils/baseDatos");
 
 async function listar({ busqueda, pagina, limite }) {
   const consulta = db("publicaciones as p")
@@ -9,8 +12,8 @@ async function listar({ busqueda, pagina, limite }) {
   if (busqueda) {
     consulta.andWhere((q) =>
       q
-        .where("p.titulo", "like", `%${busqueda}%`)
-        .orWhere("p.slug", "like", `%${busqueda}%`),
+        .where("p.titulo", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("p.slug", operadorBusqueda(), `%${busqueda}%`),
     );
   }
   const cuenta = await consulta.clone().count({ total: "p.id" }).first();

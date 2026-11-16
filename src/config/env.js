@@ -61,23 +61,70 @@ if (!ENTORNOS_VALIDOS.includes(entorno)) {
   );
 }
 
-const dbClient = texto("DB_CLIENT", "mysql2");
-if (!CLIENTES_VALIDOS.includes(dbClient)) {
-  errores.push(
-    `DB_CLIENT debe ser "mysql2" (MySQL/MariaDB) o "pg" (PostgreSQL). Valor recibido: "${dbClient}".`,
-  );
-}
+const databaseUrl = texto("DATABASE_URL");
+let dbClient = texto("DB_CLIENT", "mysql2");
+let dbConnection;
+let sslUrlRequired = false;
 
-const dbHost = texto("DB_HOST", "127.0.0.1");
-const dbPort = entero("DB_PORT", PUERTOS_POR_DEFECTO[dbClient] || 3306, {
-  min: 1,
-  max: 65535,
-});
-const dbUser = texto("DB_USER", USUARIOS_POR_DEFECTO[dbClient] || "root");
-// La contraseña puede ser vacía (XAMPP por defecto), por eso no se exige.
-const dbPassword =
-  process.env.DB_PASSWORD === undefined ? "" : process.env.DB_PASSWORD;
-const dbName = texto("DB_NAME", "siembra_andina");
+if (databaseUrl) {
+  try {
+    const url = new URL(databaseUrl);
+    if (!["postgres:", "postgresql:"].includes(url.protocol.toLowerCase())) {
+      throw new Error();
+    }
+
+    const database = decodeURIComponent(url.pathname.replace(/^\/+/, ""));
+    if (!url.hostname || !database) throw new Error();
+
+    dbClient = "pg";
+    dbConnection = {
+      host: url.hostname,
+      port: url.port ? Number(url.port) : 5432,
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      database,
+    };
+    sslUrlRequired =
+      url.searchParams.get("sslmode")?.toLowerCase() === "require";
+  } catch {
+    errores.push(
+      "DATABASE_URL debe ser una URL válida de PostgreSQL con host y base de datos.",
+    );
+    dbConnection = {
+      host: "",
+      port: 5432,
+      user: "",
+      password: "",
+      database: "",
+    };
+  }
+} else {
+  if (!CLIENTES_VALIDOS.includes(dbClient)) {
+    errores.push(
+      `DB_CLIENT debe ser "mysql2" (MySQL/MariaDB) o "pg" (PostgreSQL). Valor recibido: "${dbClient}".`,
+    );
+  }
+
+  const dbHost = texto("DB_HOST", "127.0.0.1");
+  const dbPort = entero("DB_PORT", PUERTOS_POR_DEFECTO[dbClient] || 3306, {
+    min: 1,
+    max: 65535,
+  });
+  const dbUser = texto("DB_USER", USUARIOS_POR_DEFECTO[dbClient] || "root");
+  // La contraseña puede ser vacía (XAMPP por defecto), por eso no se exige.
+  const dbPassword =
+    process.env.DB_PASSWORD === undefined ? "" : process.env.DB_PASSWORD;
+  const dbName = texto("DB_NAME", "siembra_andina");
+  dbConnection = {
+    host: dbHost,
+    port: dbPort,
+    user: dbUser,
+    password: dbPassword,
+    database: dbName,
+  };
+}
+const sslHabilitado = booleano("DB_SSL", false) || sslUrlRequired;
+const dbPoolMax = entero("DB_POOL_MAX", 10, { min: 1, max: 20 });
 const puerto = entero("PORT", 3000, { min: 1, max: 65535 });
 const smtpPuerto = entero("SMTP_PORT", 587, { min: 1, max: 65535 });
 const appBaseUrlConfigurada = texto("APP_BASE_URL");
@@ -142,7 +189,7 @@ if (Boolean(texto("SMTP_USER")) !== Boolean(process.env.SMTP_PASSWORD)) {
   errores.push("Configura SMTP_USER y SMTP_PASSWORD juntos, o déjalos vacíos.");
 }
 
-if (!dbName)
+if (!databaseUrl && !dbConnection.database)
   errores.push("DB_NAME es obligatorio (nombre de la base de datos).");
 
 const sessionSecret = texto("SESSION_SECRET");
@@ -238,12 +285,15 @@ const config = {
   db: {
     client: dbClient,
     connection: {
-      host: dbHost,
-      port: dbPort,
-      user: dbUser,
-      password: dbPassword,
-      database: dbName,
+      ...dbConnection,
+      ...(sslHabilitado
+        ? {
+            // Para producción real debe verificarse el certificado del servidor.
+            ssl: { rejectUnauthorized: false },
+          }
+        : {}),
     },
+    poolMax: dbPoolMax,
     // Tiempo máximo de espera al abrir una conexión (ms).
     tiempoConexionMs: entero("DB_CONNECT_TIMEOUT_MS", 5000, {
       min: 500,
@@ -332,7 +382,10 @@ const config = {
   // Carpeta donde se guardan los binarios subidos (relativa a la raíz).
   // Nunca debe estar dentro de public/: se sirve solo por rutas controladas.
   subidas: {
-    directorio: texto("UPLOADS_DIR", "storage/uploads"),
+    directorio: texto(
+      "UPLOADS_DIR",
+      process.env.VERCEL !== undefined ? "/tmp/uploads" : "storage/uploads",
+    ),
     tamanoMaximoBytes: entero("UPLOADS_MAX_BYTES", 10 * 1024 * 1024, {
       min: 1024,
     }),

@@ -149,9 +149,52 @@ En Render/Railway **el disco es imprescindible** con `STORAGE_DRIVER=local`. Si 
 del disco, implementa el adaptador S3 de la Fase 10 y usa `STORAGE_DRIVER=s3` (ver
 `docs/informe-fase-11.md`, deuda técnica).
 
+## 4. Vercel + Neon (solo pruebas)
+
+El proyecto expone `index.js` para que Vercel cree la aplicación Express sin
+ejecutar `src/server.js` ni iniciar trabajos programados. Los archivos públicos
+se sirven desde `public/`; Vercel no sirve los `express.static()` que apuntan a
+`node_modules`. Ejecuta `npm run vendor:copiar` antes de desplegar y asegúrate de
+incluir `public/vendor/leaflet` y `public/vendor/chartjs` en el repositorio o en
+el proceso de build de Vercel.
+
+Configura estas variables en Vercel, sin guardarlas en el repositorio:
+
+| Variable | Valor |
+| --- | --- |
+| `DATABASE_URL` | URL pooled de Neon para la aplicación |
+| `DB_SSL` | `1` |
+| `DB_POOL_MAX` | `2` |
+| `DB_CONNECT_TIMEOUT_MS` | `15000` |
+| `NODE_ENV` | `production` |
+| `APP_BASE_URL` | URL HTTPS pública de la aplicación |
+| `SESSION_SECRET` | Secreto aleatorio de al menos 32 caracteres |
+| `SESSION_COOKIE_SECURE` | `1` |
+| `TRUST_PROXY` | `1` |
+| `UPLOADS_DIR` | `/tmp/uploads` |
+| `MAIL_MODE` | `smtp` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | Datos del servidor SMTP |
+| `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Credenciales y remitente SMTP |
+
+Ejecuta las migraciones manualmente desde una computadora con acceso a la base
+remota, después de configurar allí `DATABASE_URL` de forma segura; ejecuta
+`npm run migrate`. No ejecutes migraciones desde una función de Vercel ni durante cada
+arranque. Para la CLI, usa el endpoint de Neon compatible con migraciones si el
+endpoint pooled no admite las operaciones de sesión requeridas.
+
+Limitaciones de esta configuración de prueba:
+
+- Los trabajos de `node-cron` no se inician desde `index.js`; sincronizaciones,
+  alertas y publicaciones programadas no se ejecutarán en Vercel.
+- Las notificaciones en vivo por SSE responden `204` en Vercel; se mantiene la
+  consulta normal del contador, pero no se reciben eventos en tiempo real.
+- Los archivos subidos se guardan en `/tmp/uploads` y son temporales. Pueden
+  desaparecer al reiniciar o cambiar de instancia; no los uses como respaldo
+  permanente.
+
 ---
 
-## 4. Comprobaciones tras desplegar
+## 5. Comprobaciones tras desplegar
 
 ```bash
 curl -fsS https://tu-dominio.pe/salud          # base de datos OK
@@ -166,7 +209,7 @@ curl -fsS https://tu-dominio.pe/sin-conexion
   _standalone_.
 - Envía un formulario de contacto para verificar SMTP.
 
-## 5. Operación
+## 6. Operación
 
 - **Logs**: `docker compose logs -f app` (pino en JSON; `LOG_LEVEL=info` en producción).
 - **Trabajos programados**: se ejecutan dentro del contenedor cada día (zona `America/Lima`); el

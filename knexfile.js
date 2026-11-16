@@ -6,7 +6,7 @@ const env = require("./src/config/env");
 const configuracion = {
   client: env.db.client,
   connection: env.db.connection,
-  pool: { min: 0, max: 10 },
+  pool: { min: 0, max: env.db.poolMax },
   migrations: {
     directory: path.join(__dirname, "migrations"),
     tableName: "migraciones",

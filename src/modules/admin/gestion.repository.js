@@ -1,5 +1,8 @@
 const { db } = require("../../config/db");
-const { insertarYDevolverId } = require("../../utils/baseDatos");
+const {
+  insertarYDevolverId,
+  operadorBusqueda,
+} = require("../../utils/baseDatos");
 
 function entero(fila) {
   return Number(fila && fila.total ? fila.total : 0);
@@ -57,8 +60,8 @@ async function listarUsuarios({
   if (busqueda) {
     consulta.andWhere((q) =>
       q
-        .where("p.nombre", "like", `%${busqueda}%`)
-        .orWhere("u.email", "like", `%${busqueda}%`),
+        .where("p.nombre", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("u.email", operadorBusqueda(), `%${busqueda}%`),
     );
   }
   if (activo !== "") consulta.andWhere("u.activo", activo === "1");
@@ -248,8 +251,9 @@ async function listarCatalogo(tipo, {
   if (busqueda) {
     consulta.andWhere((q) => {
       campos.forEach((campo, indice) => {
-        if (indice === 0) q.where(campo, "like", `%${busqueda}%`);
-        else q.orWhere(campo, "like", `%${busqueda}%`);
+        if (indice === 0)
+          q.where(campo, operadorBusqueda(), `%${busqueda}%`);
+        else q.orWhere(campo, operadorBusqueda(), `%${busqueda}%`);
       });
     });
   }
@@ -427,9 +431,10 @@ function listarMensajes({
   const consulta = db("mensajes_contacto");
   if (busqueda) {
     consulta.andWhere((q) =>
-      q.where("nombre", "like", `%${busqueda}%`)
-        .orWhere("email", "like", `%${busqueda}%`)
-        .orWhere("asunto", "like", `%${busqueda}%`),
+      q
+        .where("nombre", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("email", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("asunto", operadorBusqueda(), `%${busqueda}%`),
     );
   }
   if (leido !== "") consulta.andWhere("leido", leido === "1");

@@ -1,5 +1,6 @@
 // Repositorio de auditoría: registra acciones sensibles.
 const { db } = require("../../config/db");
+const { operadorBusqueda } = require("../../utils/baseDatos");
 
 function registrar({
   usuarioId,
@@ -33,11 +34,11 @@ function consulta({ busqueda, accion, entidad, desde, hasta } = {}) {
   if (busqueda) {
     query.andWhere((subconsulta) =>
       subconsulta
-        .where("a.accion", "like", `%${busqueda}%`)
-        .orWhere("a.entidad", "like", `%${busqueda}%`)
-        .orWhere("a.detalle", "like", `%${busqueda}%`)
-        .orWhere("p.nombre", "like", `%${busqueda}%`)
-        .orWhere("u.email", "like", `%${busqueda}%`),
+        .where("a.accion", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("a.entidad", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("a.detalle", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("p.nombre", operadorBusqueda(), `%${busqueda}%`)
+        .orWhere("u.email", operadorBusqueda(), `%${busqueda}%`),
     );
   }
   return query;

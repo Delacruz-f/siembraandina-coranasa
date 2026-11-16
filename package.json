@@ -14,6 +14,7 @@
     "admin:crear": "node scripts/crear-admin.js",
     "correo:probar": "node scripts/probar-correo.js",
     "iconos": "node scripts/generar-iconos.js",
+    "vendor:copiar": "node scripts/copiar-vendor.js",
     "respaldo": "docker compose exec respaldo /bin/sh /usr/local/bin/respaldo.sh una-vez",
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:cobertura": "cross-env NODE_ENV=test jest --runInBand --coverage",
@@ -22,7 +23,7 @@
     "formato": "prettier --write \"**/*.{js,json,md,ejs,css}\"",
     "formato:check": "prettier --check \"**/*.{js,json,md,ejs,css}\"",
     "auditar": "npm audit --audit-level=high",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.js": [

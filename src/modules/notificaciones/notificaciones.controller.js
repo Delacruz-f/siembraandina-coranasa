@@ -46,6 +46,8 @@ async function mostrarAviso(req, res) {
 }
 
 async function eventos(req, res) {
+  if (process.env.VERCEL !== undefined) return res.status(204).end();
+
   const usuarioId = Number(req.session.usuario.id);
   const activas = conexionesPorUsuario.get(usuarioId) || 0;
   if (activas >= MAX_CONEXIONES_POR_USUARIO) {

@@ -5,7 +5,7 @@ const globals = require('globals');
 
 module.exports = [
   {
-    ignores: ['node_modules/**', 'public/uploads/**', 'coverage/**']
+    ignores: ['node_modules/**', 'public/uploads/**', 'public/vendor/**', 'coverage/**']
   },
   {
     files: ['**/*.js'],
